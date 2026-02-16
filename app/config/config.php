@@ -57,6 +57,8 @@ $app->set('flight.content_length', false);    // Send content length header. Usu
 // Generate a CSP nonce for each request and store in $app
 $nonce = bin2hex(random_bytes(16));
 $app->set('csp_nonce', $nonce);
+// also expose it to the server superglobal so views can insert the nonce into script tags
+$_SERVER['CSP_NONCE'] = $nonce;
 
 /**********************************************
  *           User Configuration               *

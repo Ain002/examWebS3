@@ -9,7 +9,6 @@
     </div>
     
     <div id="statsContainer">
-        <!-- Statistiques principales -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-label">Montant Total des Besoins</div>
@@ -43,78 +42,47 @@
                     <span id="nombreRestant"><?php echo $nombre_restant ?? 0; ?></span> besoin(s)
                 </div>
             </div>
-            
-            <div class="stat-card">
-                <div class="stat-label">Taux de Satisfaction</div>
-                <div class="stat-value" id="pourcentageSatisfait">
-                    <?php echo $pourcentage_satisfait ?? 0; ?>%
-                </div>
-                <div class="stat-subvalue">
-                    Des besoins sont satisfaits
-                </div>
-            </div>
         </div>
 
-        <!-- Statistiques par type de besoin -->
-        <div class="section-title">Répartition par Type de Besoin</div>
-        <div class="stats-grid" id="statsParType">
-            <?php foreach ($par_type ?? [] as $type): ?>
-            <div class="stat-card-small">
-                <div class="stat-label-small"><?php echo htmlspecialchars($type['type']); ?></div>
-                <div class="stat-value-small"><?php echo number_format($type['montant'], 0, ',', ' '); ?> Ar</div>
-                <div class="stat-detail">
-                    <?php echo $type['nombre']; ?> besoin(s) | 
-                    <?php echo $type['nombre_satisfait']; ?> satisfait(s)
+        <div class="section-title">Statistiques par type</div>
+        <div id="statsParType" class="stats-grid">
+            <?php foreach ($par_type ?? [] as $pt): ?>
+                <div class="stat-card-small">
+                    <div class="stat-label-small"><?php echo htmlspecialchars($pt['type']); ?></div>
+                    <div class="stat-value-small"><?php echo number_format($pt['montant'], 0, ',', ' '); ?> Ar</div>
+                    <div class="stat-detail"><?php echo $pt['nombre']; ?> besoin(s) | <?php echo $pt['nombre_satisfait']; ?> satisfait(s)</div>
                 </div>
-            </div>
             <?php endforeach; ?>
         </div>
 
-        <!-- Statistiques des dons et achats -->
-        <div class="stats-grid">
+        <div class="stats-grid" style="margin-top:20px;">
             <div class="stat-card info">
-                <div class="stat-label">Total des Dons</div>
-                <div class="stat-value" id="nombreDons">
-                    <?php echo $nombre_dons ?? 0; ?>
-                </div>
-                <div class="stat-subvalue">
-                    Valeur: <span id="valeurDons"><?php echo number_format($valeur_totale_dons ?? 0, 0, ',', ' '); ?></span> Ar
-                </div>
-                <div class="stat-detail">
-                    <span id="donsDistribues"><?php echo $dons_distribues ?? 0; ?></span> don(s) distribué(s)
-                </div>
+                <div class="stat-label">Dons</div>
+                <div class="stat-value" id="nombreDons"><?php echo $nombre_dons ?? 0; ?></div>
+                <div class="stat-subvalue">Valeur totale: <span id="valeurDons"><?php echo number_format($valeur_totale_dons ?? 0, 0, ',', ' '); ?></span></div>
+                <div class="stat-detail">Distribués: <span id="donsDistribues"><?php echo $dons_distribues ?? 0; ?></span></div>
             </div>
 
             <div class="stat-card info">
-                <div class="stat-label">Achats Effectués</div>
-                <div class="stat-value" id="nombreAchats">
-                    <?php echo $nombre_achats ?? 0; ?>
-                </div>
-                <div class="stat-subvalue">
-                    Montant: <span id="montantAchats"><?php echo number_format($montant_total_achats ?? 0, 0, ',', ' '); ?></span> Ar
-                </div>
+                <div class="stat-label">Achats</div>
+                <div class="stat-value" id="nombreAchats"><?php echo $nombre_achats ?? 0; ?></div>
+                <div class="stat-subvalue">Montant total: <span id="montantAchats"><?php echo number_format($montant_total_achats ?? 0, 0, ',', ' '); ?></span></div>
             </div>
 
-            <div class="stat-card success">
-                <div class="stat-label">Argent Disponible</div>
-                <div class="stat-value" id="argentDisponible">
-                    <?php echo number_format($argent_disponible ?? 0, 0, ',', ' '); ?> Ar
-                </div>
-                <div class="stat-subvalue">
-                    Pour les achats futurs
-                </div>
+            <div class="stat-card info">
+                <div class="stat-label">Argent disponible</div>
+                <div class="stat-value" id="argentDisponible"><?php echo number_format($argent_disponible ?? 0, 0, ',', ' '); ?> Ar</div>
             </div>
         </div>
 
-        <!-- Top 5 des villes -->
-        <div class="section-title">Top 5 des Villes avec le Plus de Besoins</div>
+        <div class="section-title">Top 5 villes par montant de besoins</div>
         <div class="table-container">
             <table class="stats-table" id="topVillesTable">
                 <thead>
                     <tr>
                         <th>Ville</th>
-                        <th>Nombre de Besoins</th>
-                        <th>Montant Total</th>
+                        <th>Nombre de besoins</th>
+                        <th>Montant des besoins</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -128,92 +96,11 @@
                 </tbody>
             </table>
         </div>
+
     </div>
 </div>
 
-<script>
-document.getElementById('btnActualiser').addEventListener('click', function() {
-    const btn = this;
-    btn.disabled = true;
-    btn.textContent = '⏳ Chargement...';
-    
-    fetch('/api/recapitulatif', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        // Mettre à jour les statistiques principales
-        document.getElementById('montantTotal').textContent = formatMontant(data.montant_total);
-        document.getElementById('montantSatisfait').textContent = formatMontant(data.montant_satisfait);
-        document.getElementById('montantRestant').textContent = formatMontant(data.montant_restant);
-        
-        document.getElementById('nombreTotal').textContent = data.nombre_total;
-        document.getElementById('nombreSatisfait').textContent = data.nombre_satisfait;
-        document.getElementById('nombreRestant').textContent = data.nombre_restant;
-        
-        document.getElementById('pourcentageSatisfait').textContent = data.pourcentage_satisfait + '%';
-        
-        // Mettre à jour la barre de progression
-        document.querySelector('.progress-fill').style.width = data.pourcentage_satisfait + '%';
-        
-        // Mettre à jour les statistiques des dons et achats
-        document.getElementById('nombreDons').textContent = data.nombre_dons;
-        document.getElementById('valeurDons').textContent = formatNumber(data.valeur_totale_dons);
-        document.getElementById('donsDistribues').textContent = data.dons_distribues;
-        document.getElementById('nombreAchats').textContent = data.nombre_achats;
-        document.getElementById('montantAchats').textContent = formatNumber(data.montant_total_achats);
-        document.getElementById('argentDisponible').textContent = formatMontant(data.argent_disponible);
-        
-        // Mettre à jour les statistiques par type
-        const statsParType = document.getElementById('statsParType');
-        statsParType.innerHTML = '';
-        data.par_type.forEach(type => {
-            const card = document.createElement('div');
-            card.className = 'stat-card-small';
-            card.innerHTML = `
-                <div class="stat-label-small">${type.type}</div>
-                <div class="stat-value-small">${formatMontant(type.montant)}</div>
-                <div class="stat-detail">
-                    ${type.nombre} besoin(s) | ${type.nombre_satisfait} satisfait(s)
-                </div>
-            `;
-            statsParType.appendChild(card);
-        });
-        
-        // Mettre à jour le tableau des villes
-        const tbody = document.querySelector('#topVillesTable tbody');
-        tbody.innerHTML = '';
-        data.top_villes.forEach(ville => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${ville.ville}</td>
-                <td>${ville.nombre_besoins}</td>
-                <td>${formatMontant(ville.montant_besoins)}</td>
-            `;
-            tbody.appendChild(row);
-        });
-        
-        // Animation de confirmation
-        const container = document.getElementById('statsContainer');
-        container.style.opacity = '0.5';
-        setTimeout(() => {
-            container.style.opacity = '1';
-        }, 200);
-        
-        btn.disabled = false;
-        btn.textContent = '🔄 Actualiser';
-    })
-    .catch(error => {
-        alert('Erreur lors de l\'actualisation: ' + error.message);
-        btn.disabled = false;
-        btn.textContent = '🔄 Actualiser';
-    });
-});
-
-function formatMontant(montant) {
+<script src="/js/recap-refresh.js" nonce="<?php echo htmlspecialchars($_SERVER['CSP_NONCE'] ?? ''); ?>"></script>
     return new Intl.NumberFormat('fr-MG', { 
         minimumFractionDigits: 0
     }).format(montant) + ' Ar';
