@@ -112,4 +112,12 @@ class DonModel {
         }
         return false;
     }
+
+    public function getArgentDon(){
+        $db = flight::db();
+        $stmt = $db->query("SELECT sum(quantite) FROM don where idProduit = ?");
+        $stmt->execute([4]);
+        $solde = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $solde ?? 0;
+    }
 }
