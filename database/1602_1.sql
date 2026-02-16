@@ -75,3 +75,7 @@ CREATE TABLE attribution (
     CONSTRAINT fk_attribution_don
         FOREIGN KEY (idDon) REFERENCES don(id)
 );
+
+ALTER TABLE produit
+ADD unite VARCHAR(20) NOT NULL;
+
