@@ -90,8 +90,8 @@ class DonModel {
 
     private function create() {
         $db = flight::db();
-        $stmt = $db->prepare("INSERT INTO don (idProduit, quantite, dateDon, dateSaisie) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$this->idProduit, $this->quantite, $this->dateDon, $this->dateSaisie]);
+        $stmt = $db->prepare("INSERT INTO don (idProduit, quantite, dateDon, dateSaisie) VALUES (?, ?, ?, now())");
+        $stmt->execute([$this->idProduit, $this->quantite, $this->dateDon]);
         $this->id = $db->lastInsertId();
         return $this;
     }
