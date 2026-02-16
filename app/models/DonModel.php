@@ -115,9 +115,26 @@ class DonModel {
 
     public function getTotalArgent(){
         $db = flight::db();
-        $stmt = $db->query("SELECT sum(quantite) as total FROM don where idProduit = ?");
+        $stmt = $db->prepare("SELECT sum(quantite) as total FROM don where idProduit = ?");
         $stmt->execute([4]);
         $solde = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $solde['total'] ?? 0;
+    }
+
+    public static function getTotalArgentDisponible(){
+        $db = flight::db();
+        $stmt = $db->prepare("
+            SELECT SUM(d.quantite - COALESCE(a.total_attribue, 0)) as argent_disponible
+            FROM don d
+            LEFT JOIN (
+                SELECT idDon, SUM(quantite) as total_attribue
+                FROM attribution
+                GROUP BY idDon
+            ) a ON d.id = a.idDon
+            WHERE d.idProduit = 4
+        ");
+        $stmt->execute();
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $result['argent_disponible'] ?? 0;
     }
 }
