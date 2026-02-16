@@ -165,6 +165,8 @@ $router->group('', function(Router $router) use ($app) {
 		$ctrl = new BesoinController($app);
 		$res = $ctrl->delete($id);
 		$app->json($res);
+	});
+	
 	$router->post('/api/dons/@id/distribuer', function($id) use ($app) {
 		$ctrl = new DonController($app);
 		$result = $ctrl->distribuerDon($id);
