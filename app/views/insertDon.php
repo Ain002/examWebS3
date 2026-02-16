@@ -25,3 +25,4 @@
         <input type="submit" value="Donner">
     </form>
 </div>
+  <?php include __DIR__ . '/footer.php'; ?>

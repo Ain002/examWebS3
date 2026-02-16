@@ -13,3 +13,4 @@
         <p>Aucune région trouvée.</p>
     <?php endif; ?>
 </div>
+  <?php include __DIR__ . '/footer.php'; ?>

@@ -62,7 +62,11 @@
     <?php else: ?>
         <p>Aucun don disponible.</p>
     <?php endif; ?>
+
+    <a href="/produit">Insérer un don</a>
+    
 </div>
+  <?php include __DIR__ . '/footer.php'; ?>
 
 <style>
 table {

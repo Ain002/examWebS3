@@ -116,4 +116,5 @@ class AttributionModel {
         }
         return false;
     }
+    
 }
