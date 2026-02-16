@@ -167,6 +167,7 @@ $router->group('', function(Router $router) use ($app) {
 		$app->json($res);
 	});
 	
+
 	$router->post('/api/dons/@id/distribuer', function($id) use ($app) {
 		$ctrl = new DonController($app);
 		$result = $ctrl->distribuerDon($id);
