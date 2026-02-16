@@ -6,7 +6,10 @@
     <?php if (!empty($villes) && is_array($villes)): ?>
         <ul>
             <?php foreach ($villes as $v): ?>
-                <li><?php echo htmlspecialchars($v->nom ?? ''); ?> (id: <?php echo (int)($v->id ?? 0); ?>, région: <?php echo (int)($v->idRegion ?? 0); ?>)</li>
+                <li>
+                    <?= htmlspecialchars($v->nom ?? ''); ?> (id: <?= (int)($v->id ?? 0); ?>, région: <?= (int)($v->idRegion ?? 0); ?>)
+                    <a href="<?= BASE_URL ?>/besoin/<?= (int)($v->id ?? 0); ?>">Voir les besoins</a>
+                </li>
             <?php endforeach; ?>
         </ul>
     <?php else: ?>
