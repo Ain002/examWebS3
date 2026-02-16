@@ -81,4 +81,16 @@ $router->group('', function(Router $router) use ($app) {
 		$app->json($ctrl->get($id));
 	});
 
+	$router->post('/api/dons/@id/distribuer', function($id) use ($app) {
+		$ctrl = new DonController($app);
+		$result = $ctrl->distribuerDon($id);
+		
+		// Redirection vers la page des dons avec un message
+		if ($result['success']) {
+			$app->redirect('/don?message=Distribution réussie&distribue=' . $result['quantite_distribuee'] . '&restant=' . $result['quantite_restante']);
+		} else {
+			$app->redirect('/don?error=' . urlencode($result['error'] ?? 'Erreur inconnue'));
+		}
+	});
+
 }, [ SecurityHeadersMiddleware::class ]);
