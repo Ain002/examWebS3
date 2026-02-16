@@ -54,3 +54,12 @@ CREATE TABLE donDistribue (
     dateDistribution DATE NOT NULL,
     FOREIGN KEY (idDon) REFERENCES don(id)
 );
+
+CREATE TABLE attribution (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    idBesoin INT NOT NULL,
+    idDon INT NOT NULL,
+    quantite INT NOT NULL,
+    FOREIGN KEY (idBesoin) REFERENCES besoin(id),
+    FOREIGN KEY (idDon) REFERENCES don(id)
+);
