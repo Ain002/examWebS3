@@ -54,3 +54,7 @@ INSERT INTO besoinSatisfait (idBesoin, dateSatisfaction) VALUES
 INSERT INTO donDistribue (idDon, dateDistribution) VALUES
 (1, '2026-02-11'),
 (2, '2026-02-13');
+
+
+INSERT INTO produit (description, pu, unite) VALUES
+('Argent', 1, 'Ar');

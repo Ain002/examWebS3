@@ -6,6 +6,8 @@ use app\controllers\RegionController;
 use app\controllers\VilleController;
 use app\controllers\DonController;
 use app\controllers\BesoinController;
+use app\models\ProduitModel;
+use app\models\TypeBesoinModel;
 use app\middlewares\SecurityHeadersMiddleware;
 use flight\Engine;
 use flight\net\Router;
@@ -87,60 +89,61 @@ $router->group('', function(Router $router) use ($app) {
 		$app->json($ctrl->get($id));
 	});
 
-	// page affichant les besoins pour une ville donnée (fragment)
-	$router->get('/besoin/@id', function($id) use ($app) {
-		$list = new BesoinController($app);
-		$data = $list->getByVille($id);
-		// récupérer les produits pour le formulaire
-		$produits = \app\models\ProduitModel::getAll();
-		// s'assurer que la vue reçoit une variable nommée 'besoins' (iterable), l'id de la ville et la liste de produits
-		$app->render('besoin', [ 'besoins' => $data, 'villeId' => (int)$id, 'produits' => $produits ]);
+	// Liste par ville
+	$router->get('/besoin/@idVille', function($idVille){
+		$ctrl = new BesoinController(Flight::app());
+		$besoins = $ctrl->getByVille($idVille);
+		$villeId = $idVille;
+		$produits = ProduitModel::getAll();
+		$types = TypeBesoinModel::getAll();
+
+		require 'app/views/besoin.php';
 	});
 
-	// Routes server-side (form POST) pour gérer les besoins sans JSON
-	$router->post('/besoin/save', function() use ($app) {
-		$payload = $app->request()->data->getData();
-		$ctrl = new BesoinController($app);
-		// si un id est fourni, on met à jour, sinon on crée
+	// Form ajout
+	$router->get('/besoin/form/@idVille', function($idVille){
+		$besoin = null;
+		$villeId = $idVille;
+		$types = TypeBesoinModel::getAll();
+		$produits = ProduitModel::getAll();
+
+		require 'app/views/besoinForm.php';
+	});
+
+	// Form modification
+	$router->get('/besoin/form/@idVille/@id', function($idVille, $id){
+		$ctrl = new BesoinController(Flight::app());
+		$besoin = $ctrl->get($id);
+		$villeId = $idVille;
+		$types = TypeBesoinModel::getAll();
+		$produits = ProduitModel::getAll();
+
+		require 'app/views/besoinForm.php';
+	});
+
+	// Save
+	$router->post('/besoin/save', function(){
+		$ctrl = new BesoinController(Flight::app());
+		$payload = $_POST;
+
 		if (!empty($payload['id'])) {
-			$ctrl->update((int)$payload['id'], (array)$payload);
+			$ctrl->update((int)$payload['id'], $payload);
 		} else {
-			$ctrl->create((array)$payload);
+			$ctrl->create($payload);
 		}
-		$villeId = (int)($payload['idVille'] ?? 0);
-		$besoins = $ctrl->getByVille($villeId);
-		// rendre le fragment mis à jour
-		$app->render('besoin', [ 'besoins' => $besoins, 'villeId' => $villeId ]);
+
+		Flight::redirect(BASE_URL . '/besoin/ville/' . $payload['idVille']);
 	});
 
-	$router->post('/besoin/delete/@id', function($id) use ($app) {
-		$payload = $app->request()->data->getData();
-		$ctrl = new BesoinController($app);
-		$ctrl->delete($id);
-		$villeId = (int)($payload['idVille'] ?? 0);
-		$besoins = $ctrl->getByVille($villeId);
-		$app->render('besoin', [ 'besoins' => $besoins, 'villeId' => $villeId ]);
-	});
-
-	// API pour gérer les besoins (JSON)
-	$router->post('/api/besoins', function() use ($app) {
-		$payload = $app->request()->data->getData();
-		$ctrl = new BesoinController($app);
-		$res = $ctrl->create((array)$payload);
-		$app->json($res);
-	});
-
-	$router->put('/api/besoins/@id', function($id) use ($app) {
-		$payload = $app->request()->data->getData();
-		$ctrl = new BesoinController($app);
-		$res = $ctrl->update($id, (array)$payload);
-		$app->json($res);
-	});
-
-	$router->delete('/api/besoins/@id', function($id) use ($app) {
-		$ctrl = new BesoinController($app);
-		$res = $ctrl->delete($id);
-		$app->json($res);
+	// Delete
+	$router->post('/besoin/delete/@id', function($id){
+		$ctrl = new BesoinController(Flight::app());
+		$d = $ctrl->get($id);
+		if($d){
+			$idVille = $d->idVille;
+			$ctrl->delete($id);
+			Flight::redirect(BASE_URL . '/besoin/ville/' . $idVille);
+		}
 	});
 
 }, [ SecurityHeadersMiddleware::class ]);
