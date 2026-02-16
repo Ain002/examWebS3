@@ -16,3 +16,4 @@
         <p>Aucune ville trouvée.</p>
     <?php endif; ?>
 </div>
+  <?php include __DIR__ . '/footer.php'; ?>
