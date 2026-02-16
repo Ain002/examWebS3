@@ -6,6 +6,7 @@ use app\controllers\RegionController;
 use app\controllers\VilleController;
 use app\controllers\DonController;
 use app\controllers\BesoinController;
+use app\controllers\ProduitController;
 use app\middlewares\SecurityHeadersMiddleware;
 use flight\Engine;
 use flight\net\Router;
@@ -51,6 +52,28 @@ $router->group('', function(Router $router) use ($app) {
 		$app->render('don', [ 'dons' => $dons ]);
 	});
 
+	$router->get('/produit', function() use ($app) {
+		$ctrl = new ProduitController($app);
+		$produits = $ctrl->index();
+		$app->render('insertDon', ['produits' => $produits]);
+	});
+	
+	$router->post('/don', function() use ($app) {
+
+		$data = [
+			'idProduit' => $_POST['idProduit'] ?? null,
+			'quantite'  => $_POST['quantite'] ?? null,
+			'dateDon'   => $_POST['dateDon'] ?? null
+		];
+	
+		if ($data['idProduit'] && $data['quantite'] && $data['dateDon']) {
+			$ctrl = new DonController($app);
+			$ctrl->create($data);
+		}
+	
+		flight::redirect('/produit');
+	});
+	
 	// Simple API endpoints (JSON)
 	$router->get('/api/regions', function() use ($app) {
 		$ctrl = new RegionController($app);
@@ -141,6 +164,16 @@ $router->group('', function(Router $router) use ($app) {
 		$ctrl = new BesoinController($app);
 		$res = $ctrl->delete($id);
 		$app->json($res);
+	$router->post('/api/dons/@id/distribuer', function($id) use ($app) {
+		$ctrl = new DonController($app);
+		$result = $ctrl->distribuerDon($id);
+		
+		// Redirection vers la page des dons avec un message
+		if ($result['success']) {
+			$app->redirect('/don?message=Distribution réussie&distribue=' . $result['quantite_distribuee'] . '&restant=' . $result['quantite_restante']);
+		} else {
+			$app->redirect('/don?error=' . urlencode($result['error'] ?? 'Erreur inconnue'));
+		}
 	});
 
 }, [ SecurityHeadersMiddleware::class ]);

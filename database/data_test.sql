@@ -31,7 +31,8 @@ INSERT INTO produit (description, pu, unite) VALUES
 INSERT INTO besoin (idType, idVille, idProduit, quantite) VALUES
 (1, 1, 1, 100),
 (2, 2, 2, 50),
-(3, 3, 3, 20);
+(3, 3, 3, 20),
+(1, 1, 1, 75);  -- Nouveau besoin de Riz à Antananarivo
 
 -- Insertion des dons
 INSERT INTO don (idProduit, quantite, dateDon, dateSaisie) VALUES
@@ -54,3 +55,10 @@ INSERT INTO besoinSatisfait (idBesoin, dateSatisfaction) VALUES
 INSERT INTO donDistribue (idDon, dateDistribution) VALUES
 (1, '2026-02-11'),
 (2, '2026-02-13');
+
+
+INSERT INTO besoin (idType, idVille, idProduit, quantite) VALUES
+(1, 1, 1, 75);
+
+INSERT INTO besoin (idType, idVille, idProduit, quantite) VALUES
+(1, 1, 1, 25);

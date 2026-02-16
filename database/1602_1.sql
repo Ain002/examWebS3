@@ -23,6 +23,7 @@ CREATE TABLE produit (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     description VARCHAR(255) NOT NULL,
     pu DOUBLE NOT NULL
+    
 );
 
 CREATE TABLE besoin (
