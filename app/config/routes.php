@@ -6,6 +6,7 @@ use app\controllers\RegionController;
 use app\controllers\VilleController;
 use app\controllers\DonController;
 use app\controllers\BesoinController;
+use app\controllers\RecapitulatifController;
 use app\models\ProduitModel;
 use app\models\TypeBesoinModel;
 use app\controllers\ProduitController;
@@ -53,6 +54,12 @@ $router->group('', function(Router $router) use ($app) {
 		$ctrl = new DonController($app);
 		$dons = $ctrl->index();
 		$app->render('don', [ 'dons' => $dons ]);
+	});
+
+	$router->get('/recapitulatif', function() use ($app) {
+		$ctrl = new RecapitulatifController($app);
+		$stats = $ctrl->getStats();
+		$app->render('recapitulatif', $stats);
 	});
 
 	$router->get('/produit', function() use ($app) {
@@ -172,5 +179,11 @@ $router->group('', function(Router $router) use ($app) {
 		}
 	});
 
+	// API endpoint pour récapitulatif (AJAX)
+	$router->get('/api/recapitulatif', function() use ($app) {
+		$ctrl = new RecapitulatifController($app);
+		$stats = $ctrl->getStats();
+		$app->json($stats);
+	});
 
 }, [ SecurityHeadersMiddleware::class ]);
