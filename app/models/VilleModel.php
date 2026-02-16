@@ -15,6 +15,7 @@ class VilleModel {
             $this->hydrate($data);
         }
     }
+    
 
     public function hydrate($data) {
         $this->id = $data['id'] ?? null;
