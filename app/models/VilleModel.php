@@ -17,6 +17,7 @@ class VilleModel {
     }
     
 
+
     public function hydrate($data) {
         $this->id = $data['id'] ?? null;
         $this->idRegion = $data['idRegion'] ?? null;
