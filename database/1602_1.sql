@@ -82,11 +82,11 @@ ADD unite VARCHAR(20) NOT NULL;
 
 CREATE TABLE achat (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    idBesoin INT NOT NULL,
+    idBesoin INT UNSIGNED NOT NULL,
     montant DOUBLE NOT NULL,
-    FOREIGN KEY (idBesoin) REFERENCES besoin(id)
+    CONSTRAINT fk_achat_besoin
+        FOREIGN KEY (idBesoin) REFERENCES besoin(id)
 );
-
 
 CREATE TABLE configFraisAchat (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
