@@ -9,6 +9,7 @@
     </div>
     
     <div id="statsContainer">
+        <!-- Statistiques principales -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-label">Montant Total des Besoins</div>
@@ -53,6 +54,80 @@
                 </div>
             </div>
         </div>
+
+        <!-- Statistiques par type de besoin -->
+        <div class="section-title">Répartition par Type de Besoin</div>
+        <div class="stats-grid" id="statsParType">
+            <?php foreach ($par_type ?? [] as $type): ?>
+            <div class="stat-card-small">
+                <div class="stat-label-small"><?php echo htmlspecialchars($type['type']); ?></div>
+                <div class="stat-value-small"><?php echo number_format($type['montant'], 0, ',', ' '); ?> Ar</div>
+                <div class="stat-detail">
+                    <?php echo $type['nombre']; ?> besoin(s) | 
+                    <?php echo $type['nombre_satisfait']; ?> satisfait(s)
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+
+        <!-- Statistiques des dons et achats -->
+        <div class="stats-grid">
+            <div class="stat-card info">
+                <div class="stat-label">Total des Dons</div>
+                <div class="stat-value" id="nombreDons">
+                    <?php echo $nombre_dons ?? 0; ?>
+                </div>
+                <div class="stat-subvalue">
+                    Valeur: <span id="valeurDons"><?php echo number_format($valeur_totale_dons ?? 0, 0, ',', ' '); ?></span> Ar
+                </div>
+                <div class="stat-detail">
+                    <span id="donsDistribues"><?php echo $dons_distribues ?? 0; ?></span> don(s) distribué(s)
+                </div>
+            </div>
+
+            <div class="stat-card info">
+                <div class="stat-label">Achats Effectués</div>
+                <div class="stat-value" id="nombreAchats">
+                    <?php echo $nombre_achats ?? 0; ?>
+                </div>
+                <div class="stat-subvalue">
+                    Montant: <span id="montantAchats"><?php echo number_format($montant_total_achats ?? 0, 0, ',', ' '); ?></span> Ar
+                </div>
+            </div>
+
+            <div class="stat-card success">
+                <div class="stat-label">Argent Disponible</div>
+                <div class="stat-value" id="argentDisponible">
+                    <?php echo number_format($argent_disponible ?? 0, 0, ',', ' '); ?> Ar
+                </div>
+                <div class="stat-subvalue">
+                    Pour les achats futurs
+                </div>
+            </div>
+        </div>
+
+        <!-- Top 5 des villes -->
+        <div class="section-title">Top 5 des Villes avec le Plus de Besoins</div>
+        <div class="table-container">
+            <table class="stats-table" id="topVillesTable">
+                <thead>
+                    <tr>
+                        <th>Ville</th>
+                        <th>Nombre de Besoins</th>
+                        <th>Montant Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($top_villes ?? [] as $ville): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($ville['ville']); ?></td>
+                        <td><?php echo $ville['nombre_besoins']; ?></td>
+                        <td><?php echo number_format($ville['montant_besoins'], 0, ',', ' '); ?> Ar</td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -70,7 +145,7 @@ document.getElementById('btnActualiser').addEventListener('click', function() {
     })
     .then(response => response.json())
     .then(data => {
-        // Mettre à jour les valeurs dans le DOM
+        // Mettre à jour les statistiques principales
         document.getElementById('montantTotal').textContent = formatMontant(data.montant_total);
         document.getElementById('montantSatisfait').textContent = formatMontant(data.montant_satisfait);
         document.getElementById('montantRestant').textContent = formatMontant(data.montant_restant);
@@ -83,6 +158,43 @@ document.getElementById('btnActualiser').addEventListener('click', function() {
         
         // Mettre à jour la barre de progression
         document.querySelector('.progress-fill').style.width = data.pourcentage_satisfait + '%';
+        
+        // Mettre à jour les statistiques des dons et achats
+        document.getElementById('nombreDons').textContent = data.nombre_dons;
+        document.getElementById('valeurDons').textContent = formatNumber(data.valeur_totale_dons);
+        document.getElementById('donsDistribues').textContent = data.dons_distribues;
+        document.getElementById('nombreAchats').textContent = data.nombre_achats;
+        document.getElementById('montantAchats').textContent = formatNumber(data.montant_total_achats);
+        document.getElementById('argentDisponible').textContent = formatMontant(data.argent_disponible);
+        
+        // Mettre à jour les statistiques par type
+        const statsParType = document.getElementById('statsParType');
+        statsParType.innerHTML = '';
+        data.par_type.forEach(type => {
+            const card = document.createElement('div');
+            card.className = 'stat-card-small';
+            card.innerHTML = `
+                <div class="stat-label-small">${type.type}</div>
+                <div class="stat-value-small">${formatMontant(type.montant)}</div>
+                <div class="stat-detail">
+                    ${type.nombre} besoin(s) | ${type.nombre_satisfait} satisfait(s)
+                </div>
+            `;
+            statsParType.appendChild(card);
+        });
+        
+        // Mettre à jour le tableau des villes
+        const tbody = document.querySelector('#topVillesTable tbody');
+        tbody.innerHTML = '';
+        data.top_villes.forEach(ville => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${ville.ville}</td>
+                <td>${ville.nombre_besoins}</td>
+                <td>${formatMontant(ville.montant_besoins)}</td>
+            `;
+            tbody.appendChild(row);
+        });
         
         // Animation de confirmation
         const container = document.getElementById('statsContainer');
@@ -106,11 +218,25 @@ function formatMontant(montant) {
         minimumFractionDigits: 0
     }).format(montant) + ' Ar';
 }
+
+function formatNumber(number) {
+    return new Intl.NumberFormat('fr-MG', { 
+        minimumFractionDigits: 0
+    }).format(number);
+}
 </script>
 
 <style>
 #statsContainer {
     transition: opacity 0.2s ease;
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-top: 40px;
+    margin-bottom: 15px;
+    color: #111827;
 }
 
 .stats-grid {
@@ -136,10 +262,29 @@ function formatMontant(montant) {
     border-left-color: #f59e0b;
 }
 
+.stat-card.info {
+    border-left-color: #3b82f6;
+}
+
+.stat-card-small {
+    background: white;
+    border-radius: 6px;
+    padding: 15px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    border-left: 3px solid #6366f1;
+}
+
 .stat-label {
     font-size: 14px;
     color: #6b7280;
     margin-bottom: 8px;
+}
+
+.stat-label-small {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 6px;
+    font-weight: 500;
 }
 
 .stat-value {
@@ -148,10 +293,22 @@ function formatMontant(montant) {
     color: #111827;
 }
 
+.stat-value-small {
+    font-size: 24px;
+    font-weight: bold;
+    color: #111827;
+}
+
 .stat-subvalue {
     font-size: 14px;
     color: #9ca3af;
     margin-top: 4px;
+}
+
+.stat-detail {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 6px;
 }
 
 .btn-actualiser {
@@ -188,5 +345,42 @@ function formatMontant(montant) {
     height: 100%;
     background-color: #10b981;
     transition: width 0.3s ease;
+}
+
+.table-container {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-top: 20px;
+    overflow-x: auto;
+}
+
+.stats-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.stats-table th {
+    background-color: #f3f4f6;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.stats-table td {
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+    color: #111827;
+}
+
+.stats-table tr:hover {
+    background-color: #f9fafb;
+}
+
+.stats-table tbody tr:last-child td {
+    border-bottom: none;
 }
 </style>
