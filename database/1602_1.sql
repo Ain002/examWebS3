@@ -1,3 +1,6 @@
+create DATABASE don;
+
+use don;
 CREATE TABLE region (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(255) NOT NULL
