@@ -52,7 +52,7 @@ class DonController {
 
     public function distribuerDon($id){
         $don = DonModel::getById($id);
-        if (!$don) return ['success' => false, 'error' => 'Don non trouvé'];
+        if (!$don) return ['success' => false, 'message' => 'Don non trouvé'];
         
         $db = $this->app->db();
         
@@ -124,10 +124,13 @@ class DonController {
             // Valider la transaction
             $db->commit();
             
+            $qDistrib = $don->quantite - $quantiteRestante;
+            $msg = "Distribution effectuée. Quantité distribuée : $qDistrib. Quantité restante : $quantiteRestante.";
             return [
                 'success' => true,
-                'quantite_distribuee' => $don->quantite - $quantiteRestante,
-                'quantite_restante' => $quantiteRestante
+                'quantite_distribuee' => $qDistrib,
+                'quantite_restante' => $quantiteRestante,
+                'message' => $msg
             ];
             
         } catch (\Exception $e) {
@@ -135,7 +138,7 @@ class DonController {
             $db->rollBack();
             return [
                 'success' => false,
-                'error' => $e->getMessage()
+                'message' => 'Erreur lors de la distribution : ' . $e->getMessage()
             ];
         }
     }
