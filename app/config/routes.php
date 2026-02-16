@@ -121,6 +121,18 @@ $router->group('', function(Router $router) use ($app) {
 		$app->json($ctrl->get($id));
 	});
 
+	// Distribution des dons
+	$router->post('/api/dons/@id/distribuer', function($id) use ($app) {
+		$ctrl = new DonController($app);
+		$result = $ctrl->distribuerDon($id);
+		
+		if ($result['success']) {
+			flight::redirect('/don?success=' . urlencode($result['message']));
+		} else {
+			flight::redirect('/don?error=' . urlencode($result['message']));
+		}
+	});
+
 	// Liste par ville
 
 	// Besoins restants (page HTML, non JSON) - placer avant la route dynamique /besoin/@idVille
