@@ -11,6 +11,7 @@ class DonModel {
     public $quantite;
     public $dateDon;
     public $dateSaisie;
+    public $quantiteRestante; // Propriété calculée pour affichage
 
     public function __construct($data = []) {
         if (!empty($data)) {
