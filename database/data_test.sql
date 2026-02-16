@@ -64,3 +64,4 @@ INSERT INTO besoin (idType, idVille, idProduit, quantite) VALUES
 
 INSERT INTO besoin (idType, idVille, idProduit, quantite) VALUES
 (1, 1, 1, 25);
+

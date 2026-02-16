@@ -3,6 +3,16 @@
 <div>
     <h1>Besoins restants</h1>
 
+    <?php if (!empty($_GET['error'])): ?>
+        <div style="background:#fee2e2;color:#b91c1c;padding:10px;border:1px solid #fca5a5;border-radius:6px;margin-bottom:12px;">
+            <?= htmlspecialchars($_GET['error']) ?>
+        </div>
+    <?php elseif (!empty($_GET['success'])): ?>
+        <div style="background:#ecfdf5;color:#065f46;padding:10px;border:1px solid #bbf7d0;border-radius:6px;margin-bottom:12px;">
+            Achat effectué avec succès.
+        </div>
+    <?php endif; ?>
+
     <form method="get" action="/besoin/restant" style="margin-bottom:12px;">
         <label>Filtrer par ville: </label>
         <select name="idVille" onchange="this.form.submit()">
@@ -40,7 +50,7 @@
                         <td style="padding:8px;border:1px solid #e5e7eb; text-align:center;"><?= htmlspecialchars($b['quantite_attribue']) ?></td>
                         <td style="padding:8px;border:1px solid #e5e7eb; text-align:center;"><?= htmlspecialchars($b['quantite_restante']) ?></td>
                         <td style="padding:8px;border:1px solid #e5e7eb;">
-                            <a href="/besoin/restant?action=acheter&ville=<?= $b['idVille'] ?>&produit=<?= $b['idProduit'] ?>&besoin=<?= $b['id'] ?>" style="margin-left:8px;padding:6px 10px;background:#10b981;color:#fff;border-radius:6px;text-decoration:none;">Acheter</a>
+                           <a href="/besoin/acheter/<?= $b['id'] ?>" style="margin-left:8px;padding:6px 10px;background:#10b981;color:#fff;border-radius:6px;text-decoration:none;">Acheter</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

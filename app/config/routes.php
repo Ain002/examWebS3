@@ -143,6 +143,19 @@ $router->group('', function(Router $router) use ($app) {
 		require __DIR__ . '/../views/besoinRestant.php';
 	});
 
+	$router->get('/besoin/acheter/@id', function($id) use ($app) {
+        $besoinCtrl = new BesoinController($app);
+        $res = $besoinCtrl->achatBesoin($id);
+        // construire la query string pour le feedback
+        if (is_array($res) && isset($res['success']) && $res['success']) {
+            $query = 'success=1';
+        } else {
+            $msg = is_array($res) && isset($res['error']) ? $res['error'] : 'Erreur';
+            $query = 'error=' . rawurlencode($msg);
+        }
+        $app->redirect(BASE_URL . '/besoin/restant?' . $query);
+    });
+
 	$router->get('/besoin/@idVille', function($idVille){
 		$ctrl = new BesoinController(Flight::app());
 		$besoins = $ctrl->getByVille($idVille);
