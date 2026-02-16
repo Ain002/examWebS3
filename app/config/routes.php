@@ -121,7 +121,8 @@ $router->group('', function(Router $router) use ($app) {
 		$produits = ProduitModel::getAll();
 		$types = TypeBesoinModel::getAll();
 
-		require 'app/views/besoin.php';
+		require __DIR__ . '/../views/besoin.php';
+;
 	});
 
 	// Form ajout
@@ -131,7 +132,8 @@ $router->group('', function(Router $router) use ($app) {
 		$types = TypeBesoinModel::getAll();
 		$produits = ProduitModel::getAll();
 
-		require 'app/views/besoinForm.php';
+		require __DIR__ . '/../views/besoinForm.php';
+;
 	});
 
 	// Form modification
