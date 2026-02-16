@@ -1,5 +1,17 @@
 <?php
 // Page statique d'exemple pour afficher un menu vertical et le contenu central
+
+// Calculer le nombre de besoins restants pour l'afficher dans le menu
+$remainingCount = 0;
+try {
+  $rows = \app\models\BesoinSatisfaitModel::getBesoinRestant();
+  if (is_array($rows)) {
+    $remainingCount = count($rows);
+  }
+} catch (\Throwable $e) {
+  // silent
+  $remainingCount = 0;
+}
 ?>
 <!doctype html>
 <html lang="fr">
@@ -48,6 +60,7 @@
           <li role="none"><a role="menuitem" data-page="region" href="/region"><span class="icon">🗺️</span><span>Région</span></a></li>
           <li role="none"><a role="menuitem" data-page="ville" href="/ville"><span class="icon">🏙️</span><span>Ville</span></a></li>
           <li role="none"><a role="menuitem" data-page="don" href="/don"><span class="icon">🎁</span><span>Don</span></a></li>
+          <li role="none"><a role="menuitem" href="/besoin/restant"><span class="icon">📌</span><span>Besoins restants</span><?php if($remainingCount>0): ?><span class="badge" style="margin-left:8px;background:#ef4444;color:#fff;padding:2px 8px;border-radius:999px;font-weight:700;font-size:12px"><?= $remainingCount ?></span><?php endif; ?></a></li>
         </ul>
       </nav>
     </aside>

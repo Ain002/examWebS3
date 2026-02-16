@@ -9,6 +9,7 @@ use app\controllers\BesoinController;
 use app\models\ProduitModel;
 use app\models\TypeBesoinModel;
 use app\controllers\ProduitController;
+use app\controllers\BesoinSatisfaitController;
 use app\middlewares\SecurityHeadersMiddleware;
 use flight\Engine;
 use flight\net\Router;
@@ -114,6 +115,15 @@ $router->group('', function(Router $router) use ($app) {
 	});
 
 	// Liste par ville
+
+	// Besoins restants (page HTML, non JSON) - placer avant la route dynamique /besoin/@idVille
+	$router->get('/besoin/restant', function() use ($app) {
+		$ctrl = new app\controllers\BesoinSatisfaitController(Flight::app());
+		$besoins = $ctrl->getBesoinRestant();
+		$villes = (new app\controllers\VilleController(Flight::app()))->index();
+		require __DIR__ . '/../views/besoinRestant.php';
+	});
+
 	$router->get('/besoin/@idVille', function($idVille){
 		$ctrl = new BesoinController(Flight::app());
 		$besoins = $ctrl->getByVille($idVille);
@@ -122,7 +132,7 @@ $router->group('', function(Router $router) use ($app) {
 		$types = TypeBesoinModel::getAll();
 
 		require __DIR__ . '/../views/besoin.php';
-;
+
 	});
 
 	// Form ajout
@@ -133,7 +143,7 @@ $router->group('', function(Router $router) use ($app) {
 		$produits = ProduitModel::getAll();
 
 		require __DIR__ . '/../views/besoinForm.php';
-;
+
 	});
 
 	// Form modification
@@ -171,6 +181,9 @@ $router->group('', function(Router $router) use ($app) {
 			Flight::redirect(BASE_URL . '/besoin/ville/' . $idVille);
 		}
 	});
+
+
+
 
 
 }, [ SecurityHeadersMiddleware::class ]);
