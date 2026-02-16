@@ -136,6 +136,7 @@ class BesoinController {
                 HAVING d.quantite - distribue > 0
                 ORDER BY d.dateDon ASC
             ");
+            
             $stmt->execute();
             $donsArgent = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             
