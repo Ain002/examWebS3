@@ -74,7 +74,7 @@ $router->group('', function(Router $router) use ($app) {
 			$ctrl->create($data);
 		}
 	
-		flight::redirect('/produit');
+		flight::redirect('/don');
 	});
 	
 	// Simple API endpoints (JSON)
