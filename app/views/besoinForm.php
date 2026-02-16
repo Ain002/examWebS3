@@ -70,3 +70,4 @@ $quantite = $besoin->quantite ?? '';
 
     </form>
 </div>
+  <?php include __DIR__ . '/footer.php'; ?>

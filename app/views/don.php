@@ -63,6 +63,7 @@
         <p>Aucun don disponible.</p>
     <?php endif; ?>
 </div>
+  <?php include __DIR__ . '/footer.php'; ?>
 
 <style>
 table {

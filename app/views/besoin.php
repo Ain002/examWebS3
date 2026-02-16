@@ -76,3 +76,5 @@ use app\models\BesoinModel;
         </a>
     </div>
 </div>
+<?php include __DIR__ . '/footer.php'; ?>
+

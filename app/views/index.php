@@ -67,6 +67,7 @@
     </main>
   </div>
 
+  <?php include __DIR__ . '/footer.php'; ?>
   <script>
     // base URL pour les fetch depuis le navigateur (vide -> racine)
     window.BASE_URL = '';
