@@ -80,3 +80,16 @@ CREATE TABLE attribution (
 ALTER TABLE produit
 ADD unite VARCHAR(20) NOT NULL;
 
+CREATE TABLE achat (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    idBesoin INT NOT NULL,
+    montant DOUBLE NOT NULL,
+    FOREIGN KEY (idBesoin) REFERENCES besoin(id)
+);
+
+
+CREATE TABLE configFraisAchat (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    pourcentage DECIMAL(5,2) NOT NULL,
+    dateCreation DATE NOT NULL
+);
