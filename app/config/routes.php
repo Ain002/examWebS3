@@ -5,6 +5,7 @@ use app\controllers\DashboardController;
 use app\controllers\RegionController;
 use app\controllers\VilleController;
 use app\controllers\DonController;
+use app\controllers\BesoinController;
 use app\controllers\ProduitController;
 use app\middlewares\SecurityHeadersMiddleware;
 use flight\Engine;
@@ -14,6 +15,7 @@ use flight\net\Router;
  * @var Router $router 
  * @var Engine $app
  */
+
 
 // This wraps all routes in the group with the SecurityHeadersMiddleware
 $router->group('', function(Router $router) use ($app) {
@@ -104,6 +106,65 @@ $router->group('', function(Router $router) use ($app) {
 		$app->json($ctrl->get($id));
 	});
 
+	$router->get('/api/dons/@id', function($id) use ($app) {
+		$ctrl = new DonController($app);
+		$app->json($ctrl->get($id));
+	});
+
+	// page affichant les besoins pour une ville donnée (fragment)
+	$router->get('/besoin/@id', function($id) use ($app) {
+		$list = new BesoinController($app);
+		$data = $list->getByVille($id);
+		// récupérer les produits pour le formulaire
+		$produits = \app\models\ProduitModel::getAll();
+		// s'assurer que la vue reçoit une variable nommée 'besoins' (iterable), l'id de la ville et la liste de produits
+		$app->render('besoin', [ 'besoins' => $data, 'villeId' => (int)$id, 'produits' => $produits ]);
+	});
+
+	// Routes server-side (form POST) pour gérer les besoins sans JSON
+	$router->post('/besoin/save', function() use ($app) {
+		$payload = $app->request()->data->getData();
+		$ctrl = new BesoinController($app);
+		// si un id est fourni, on met à jour, sinon on crée
+		if (!empty($payload['id'])) {
+			$ctrl->update((int)$payload['id'], (array)$payload);
+		} else {
+			$ctrl->create((array)$payload);
+		}
+		$villeId = (int)($payload['idVille'] ?? 0);
+		$besoins = $ctrl->getByVille($villeId);
+		// rendre le fragment mis à jour
+		$app->render('besoin', [ 'besoins' => $besoins, 'villeId' => $villeId ]);
+	});
+
+	$router->post('/besoin/delete/@id', function($id) use ($app) {
+		$payload = $app->request()->data->getData();
+		$ctrl = new BesoinController($app);
+		$ctrl->delete($id);
+		$villeId = (int)($payload['idVille'] ?? 0);
+		$besoins = $ctrl->getByVille($villeId);
+		$app->render('besoin', [ 'besoins' => $besoins, 'villeId' => $villeId ]);
+	});
+
+	// API pour gérer les besoins (JSON)
+	$router->post('/api/besoins', function() use ($app) {
+		$payload = $app->request()->data->getData();
+		$ctrl = new BesoinController($app);
+		$res = $ctrl->create((array)$payload);
+		$app->json($res);
+	});
+
+	$router->put('/api/besoins/@id', function($id) use ($app) {
+		$payload = $app->request()->data->getData();
+		$ctrl = new BesoinController($app);
+		$res = $ctrl->update($id, (array)$payload);
+		$app->json($res);
+	});
+
+	$router->delete('/api/besoins/@id', function($id) use ($app) {
+		$ctrl = new BesoinController($app);
+		$res = $ctrl->delete($id);
+		$app->json($res);
 	$router->post('/api/dons/@id/distribuer', function($id) use ($app) {
 		$ctrl = new DonController($app);
 		$result = $ctrl->distribuerDon($id);
