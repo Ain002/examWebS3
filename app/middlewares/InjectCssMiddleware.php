@@ -40,8 +40,9 @@ class InjectCssMiddleware
             return;
         }
 
-        // Link to the global CSS (public/css/exam.css)
-        $link = "\n    <link rel=\"stylesheet\" href=\"/css/exam.css\">\n";
+    // Link to the global CSS (public/css/exam.css) using BASE_URL if available
+    $base = defined('BASE_URL') ? BASE_URL : '';
+    $link = "\n    <link rel=\"stylesheet\" href=\"" . $base . "/css/exam.css\">\n";
 
         // Insert right after <head> tag
         $newBody = preg_replace('/<head(.*?)>/i', '<head$1>' . $link, $body, 1);

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>ExamWebS3</title>
-  <link rel="stylesheet" href="/css/exam.css">
+  <link rel="stylesheet" href="<?= BASE_URL ?>/css/exam.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
 
@@ -209,7 +209,7 @@ if (file_exists($__viewFile)) {
         <div class="skeleton" style="width:70%;"></div>`;
 
       try {
-        const res = await fetch('/' + pageKey, {
+  const res = await fetch('<?= BASE_URL ?>' + '/' + pageKey, {
           headers: { 'X-Requested-With': 'XMLHttpRequest' },
           cache: 'no-store'
         });

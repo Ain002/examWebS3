@@ -54,13 +54,13 @@
               <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
 
                 <!-- Simuler : lien simple vers la page de simulation -->
-                <a href="/don/<?= (int)$d->id ?>/simuler"
+                <a href="<?= BASE_URL ?>/don/<?= (int)$d->id ?>/simuler"
                    style="padding:6px 14px;background:#6366f1;color:white;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;">
                   🔍 Simuler
                 </a>
 
                 <!-- Valider : POST direct -->
-                <form method="POST" action="/api/dons/<?= (int)$d->id ?>/distribuer" style="display:inline;"
+        <form method="POST" action="<?= BASE_URL ?>/api/dons/<?= (int)$d->id ?>/distribuer" style="display:inline;"
                       onsubmit="return confirm('Confirmer la distribution du don #<?= (int)$d->id ?> ?');">
                   <button type="submit"
                     style="padding:6px 14px;background:#10b981;color:white;border:none;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500;">
@@ -82,8 +82,8 @@
     <p style="color:#6b7280;">Aucun don disponible.</p>
   <?php endif; ?>
 
-  <div style="margin-top:20px;">
-    <a href="/produit" style="padding:8px 16px;background:#2563eb;color:white;border-radius:6px;text-decoration:none;font-size:14px;">
+    <div style="margin-top:20px;">
+    <a href="<?= BASE_URL ?>/produit" style="padding:8px 16px;background:#2563eb;color:white;border-radius:6px;text-decoration:none;font-size:14px;">
       + Insérer un don
     </a>
   </div>

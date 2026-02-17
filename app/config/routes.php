@@ -189,9 +189,19 @@ $router->group('', function(Router $router) use ($app) {
     });
 
     // ── Besoins (restant AVANT /@idVille) ──
+    // Route with optional city path parameter for clearer navigation
+    $router->get('/besoin/restant/@idVille', function($idVille) use ($app) {
+        $ctrl    = new BesoinSatisfaitController($app);
+        $besoins = $ctrl->getBesoinRestant($idVille);
+        $villes  = (new VilleController($app))->index();
+        renderPage('besoinRestant', ['besoins' => $besoins, 'villes' => $villes]);
+    });
+
+    // Default route (query parameter) — kept for backward compatibility
     $router->get('/besoin/restant', function() use ($app) {
         $ctrl    = new BesoinSatisfaitController($app);
-        $besoins = $ctrl->getBesoinRestant();
+        $idVille = $_GET['idVille'] ?? null;
+        $besoins = $ctrl->getBesoinRestant($idVille);
         $villes  = (new VilleController($app))->index();
         renderPage('besoinRestant', ['besoins' => $besoins, 'villes' => $villes]);
     });

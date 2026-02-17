@@ -2,7 +2,7 @@
     <div class="card shadow-sm p-4">
         <h2 class="mb-4">Formulaire d'insertion de dons</h2>
 
-        <form action="/don" method="post">
+    <form action="<?= BASE_URL ?>/don" method="post">
 
             <div class="mb-3">
                 <label for="produit" class="form-label">Produit</label>

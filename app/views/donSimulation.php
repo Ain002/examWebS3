@@ -8,7 +8,7 @@
 <div>
 
   <div style="margin-bottom:20px;display:flex;align-items:center;gap:12px;">
-    <a href="/don"
+    <a href="<?= BASE_URL ?>/don"
        style="padding:7px 14px;background:#e2e8f0;color:#0f172a;border-radius:6px;text-decoration:none;font-size:13px;">
       ← Retour aux dons
     </a>
@@ -16,7 +16,7 @@
   </div>
 
   <!-- Sélecteur de méthode (simple, sans JS) -->
-  <form method="get" action="/don/<?= (int)($don->id ?? '') ?>/simuler" style="margin-bottom:18px;display:flex;gap:10px;align-items:center;">
+  <form method="get" action="<?= BASE_URL ?>/don/<?= (int)($don->id ?? '') ?>/simuler" style="margin-bottom:18px;display:flex;gap:10px;align-items:center;">
     <label for="method" style="font-size:13px;color:#374151;">Méthode :</label>
     <select id="method" name="method" style="padding:6px 10px;border-radius:6px;border:1px solid #e5e7eb;">
       <option value="fifo" <?= (isset($method) && $method === 'fifo') ? 'selected' : (!isset($method) ? 'selected' : '') ?>>FIFO (par défaut)</option>
@@ -91,7 +91,7 @@
   <!-- Actions -->
   <div style="display:flex;gap:12px;align-items:center;">
     <?php if (!empty($plan)): ?>
-    <form method="POST" action="/api/dons/<?= (int)($don->id ?? '') ?>/distribuer"
+  <form method="POST" action="<?= BASE_URL ?>/api/dons/<?= (int)($don->id ?? '') ?>/distribuer"
           onsubmit="return confirm('Confirmer la distribution réelle du don #<?= (int)($don->id ?? '') ?> ?');">
       <button type="submit"
         style="padding:10px 22px;background:#10b981;color:white;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;">
@@ -100,8 +100,8 @@
     </form>
     <?php endif; ?>
 
-    <a href="/don"
-       style="padding:10px 18px;background:#e2e8f0;color:#0f172a;border-radius:8px;text-decoration:none;font-size:14px;">
+   <a href="<?= BASE_URL ?>/don"
+     style="padding:10px 18px;background:#e2e8f0;color:#0f172a;border-radius:8px;text-decoration:none;font-size:14px;">
       Annuler
     </a>
   </div>

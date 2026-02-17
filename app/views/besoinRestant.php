@@ -13,7 +13,7 @@
         </div>
     <?php endif; ?>
 
-    <form method="get" action="/besoin/restant" style="margin-bottom:12px;">
+    <form method="get" action="<?= BASE_URL ?>/besoin/restant" style="margin-bottom:12px;">
         <label>Filtrer par ville: </label>
         <select name="idVille" onchange="this.form.submit()">
             <option value="">Toutes</option>
@@ -41,7 +41,6 @@
                 <tr><td colspan="7" style="padding:12px;border:1px solid #e5e7eb;">Aucun besoin restant.</td></tr>
             <?php else: ?>
                 <?php foreach($besoins as $b): ?>
-                    <?php if(isset($_GET['idVille']) && $_GET['idVille'] !== '' && $_GET['idVille'] != $b['idVille']) continue; ?>
                     <tr>
                         <td style="padding:8px;border:1px solid #e5e7eb;"><?= htmlspecialchars($b['ville']) ?></td>
                         <td style="padding:8px;border:1px solid #e5e7eb;"><?= htmlspecialchars($b['produit']) ?></td>
@@ -50,7 +49,7 @@
                         <td style="padding:8px;border:1px solid #e5e7eb; text-align:center;"><?= htmlspecialchars($b['quantite_attribue']) ?></td>
                         <td style="padding:8px;border:1px solid #e5e7eb; text-align:center;"><?= htmlspecialchars($b['quantite_restante']) ?></td>
                         <td>
-                        <a href="/simulation/achat/<?= $b['id'] ?>" 
+                                <a href="<?= BASE_URL ?>/simulation/achat/<?= $b['id'] ?>" 
    style="margin-left:8px;padding:6px 10px;background:#3b82f6;color:#fff;border-radius:6px;text-decoration:none;">
    Simuler
 </a>

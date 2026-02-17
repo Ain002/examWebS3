@@ -22,7 +22,9 @@ class BesoinSatisfaitController {
         return BesoinSatisfaitModel::getByVille($villeId);
     }
 
-    public function getBesoinRestant () {
-        return BesoinSatisfaitModel::getBesoinRestant();
+    public function getBesoinRestant ($idVille = null) {
+        // support optional filter via explicit parameter or GET
+        $idVille = $idVille ?? ($_GET['idVille'] ?? null);
+        return BesoinSatisfaitModel::getBesoinRestant($idVille);
     }
 }
