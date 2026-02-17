@@ -6,11 +6,9 @@ use app\controllers\RegionController;
 use app\controllers\VilleController;
 use app\controllers\DonController;
 use app\controllers\BesoinController;
-use app\controllers\RecapitulatifController;
 use app\models\ProduitModel;
 use app\models\TypeBesoinModel;
 use app\controllers\ProduitController;
-use app\controllers\BesoinSatisfaitController;
 use app\middlewares\SecurityHeadersMiddleware;
 use flight\Engine;
 use flight\net\Router;
@@ -55,12 +53,6 @@ $router->group('', function(Router $router) use ($app) {
 		$ctrl = new DonController($app);
 		$dons = $ctrl->index();
 		$app->render('don', [ 'dons' => $dons ]);
-	});
-
-	$router->get('/recapitulatif', function() use ($app) {
-		$ctrl = new RecapitulatifController($app);
-		$stats = $ctrl->getStats();
-		$app->render('recapitulatif', $stats);
 	});
 
 	$router->get('/produit', function() use ($app) {
@@ -121,41 +113,7 @@ $router->group('', function(Router $router) use ($app) {
 		$app->json($ctrl->get($id));
 	});
 
-	// Distribution des dons
-	$router->post('/api/dons/@id/distribuer', function($id) use ($app) {
-		$ctrl = new DonController($app);
-		$result = $ctrl->distribuerDon($id);
-		
-		if ($result['success']) {
-			flight::redirect('/don?success=' . urlencode($result['message']));
-		} else {
-			flight::redirect('/don?error=' . urlencode($result['message']));
-		}
-	});
-
 	// Liste par ville
-
-	// Besoins restants (page HTML, non JSON) - placer avant la route dynamique /besoin/@idVille
-	$router->get('/besoin/restant', function() use ($app) {
-		$ctrl = new app\controllers\BesoinSatisfaitController(Flight::app());
-		$besoins = $ctrl->getBesoinRestant();
-		$villes = (new app\controllers\VilleController(Flight::app()))->index();
-		require __DIR__ . '/../views/besoinRestant.php';
-	});
-
-	$router->get('/besoin/acheter/@id', function($id) use ($app) {
-        $besoinCtrl = new BesoinController($app);
-        $res = $besoinCtrl->achatBesoin($id);
-        // construire la query string pour le feedback
-        if (is_array($res) && isset($res['success']) && $res['success']) {
-            $query = 'success=1';
-        } else {
-            $msg = is_array($res) && isset($res['error']) ? $res['error'] : 'Erreur';
-            $query = 'error=' . rawurlencode($msg);
-        }
-        $app->redirect(BASE_URL . '/besoin/restant?' . $query);
-    });
-
 	$router->get('/besoin/@idVille', function($idVille){
 		$ctrl = new BesoinController(Flight::app());
 		$besoins = $ctrl->getByVille($idVille);
@@ -164,7 +122,7 @@ $router->group('', function(Router $router) use ($app) {
 		$types = TypeBesoinModel::getAll();
 
 		require __DIR__ . '/../views/besoin.php';
-
+;
 	});
 
 	// Form ajout
@@ -175,7 +133,7 @@ $router->group('', function(Router $router) use ($app) {
 		$produits = ProduitModel::getAll();
 
 		require __DIR__ . '/../views/besoinForm.php';
-
+;
 	});
 
 	// Form modification
@@ -213,15 +171,6 @@ $router->group('', function(Router $router) use ($app) {
 			Flight::redirect(BASE_URL . '/besoin/ville/' . $idVille);
 		}
 	});
-
-	// API endpoint pour récapitulatif (AJAX)
-	$router->get('/api/recapitulatif', function() use ($app) {
-		$ctrl = new RecapitulatifController($app);
-		$stats = $ctrl->getStats();
-		$app->json($stats);
-	});
-
-
 
 
 }, [ SecurityHeadersMiddleware::class ]);

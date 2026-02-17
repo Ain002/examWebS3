@@ -80,9 +80,6 @@ CREATE TABLE attribution (
 ALTER TABLE produit
 ADD unite VARCHAR(20) NOT NULL;
 
-<<<<<<< HEAD
-
-=======
 CREATE TABLE achat (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     idBesoin INT UNSIGNED NOT NULL,
@@ -96,4 +93,3 @@ CREATE TABLE configFraisAchat (
     pourcentage DECIMAL(5,2) NOT NULL,
     dateCreation DATE NOT NULL
 );
->>>>>>> 51ce3e58ae930970281041626f407450dd3225b2
