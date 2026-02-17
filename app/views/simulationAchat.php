@@ -1,41 +1,55 @@
-<?php ?><div>
-    <h2>Simulation d'achat</h2>
+<div class="container mt-5">
+    <div class="card shadow-sm p-4">
 
-    <p><strong>Produit :</strong> <?= htmlspecialchars($produit->description) ?></p>
-    <p><strong>Quantité :</strong> <?= $besoin->quantite ?></p>
-    <p><strong>Prix unitaire :</strong> <?= $produit->pu ?></p>
+        <h2 class="mb-4">Simulation d'achat</h2>
 
-    <hr>
+        <div class="mb-3">
+            <p><strong>Produit :</strong> <?= htmlspecialchars($produit->description) ?></p>
+            <p><strong>Quantité :</strong> <?= $besoin->quantite ?></p>
+            <p><strong>Prix unitaire :</strong> <?= $produit->pu ?></p>
+        </div>
 
-    <p>Montant de base : <strong><?= $montantBase ?></strong></p>
-    <p>Frais (<?= $taxe ?>%) : appliqués</p>
-    <p>Montant total : <strong><?= $montantTotal ?></strong></p>
+        <hr>
 
-    <hr>
+        <div class="mb-3">
+            <p>Montant de base : 
+                <strong><?= $montantBase ?></strong>
+            </p>
 
-    <p>Argent disponible : <?= $argentDisponible ?></p>
-    <p>Reste après achat : 
-        <strong style="color:<?= $reste < 0 ? 'red' : 'green' ?>">
-            <?= $reste ?>
-        </strong>
-    </p>
+            <p>Frais (<?= $taxe ?>%) : appliqués</p>
 
-    <?php if($achatAutorise): ?>
-        <form method="post" action="/besoin/acheter/<?= $besoin->id ?>">
-            <button style="padding:8px 15px;background:#10b981;color:white;border:none;border-radius:6px;">
-                Valider l'achat
-            </button>
-        </form>
-    <?php else: ?>
-        <p style="color:red;">Fonds insuffisants</p>
-    <?php endif; ?>
-    <?php if(!$achatAutorise): ?>
-    <p style="color:red; font-weight:bold;">
-        <?= htmlspecialchars($messageErreur) ?>
-    </p>
-<?php endif; ?>
+            <p>Montant total : 
+                <strong class="text-primary"><?= $montantTotal ?></strong>
+            </p>
+        </div>
 
-    <br>
-    <a href="/besoin/restant">← Retour</a>
+        <hr>
+
+        <div class="mb-3">
+            <p>Argent disponible : <?= $argentDisponible ?></p>
+
+            <p>Reste après achat :
+                <strong class="<?= $reste < 0 ? 'text-danger' : 'text-success' ?>">
+                    <?= $reste ?>
+                </strong>
+            </p>
+        </div>
+
+        <?php if($achatAutorise): ?>
+            <form method="post" action="/besoin/acheter/<?= $besoin->id ?>">
+                <button class="btn btn-success">
+                    Valider l'achat
+                </button>
+            </form>
+        <?php else: ?>
+            <div class="alert alert-danger">
+                <?= htmlspecialchars($messageErreur) ?>
+            </div>
+        <?php endif; ?>
+
+        <a href="/besoin/restant" class="btn btn-secondary mt-3">
+            ← Retour
+        </a>
+
+    </div>
 </div>
-

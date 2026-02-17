@@ -36,13 +36,13 @@ class SimulationAchatController {
     
         if ($donsNatureDisponibles) {
             $achatAutorise = false;
-            $messageErreur = "Des dons en nature sont encore disponibles pour ce produit. Vous devez les utiliser avant d'acheter.";
+            $messageErreur = "Des dons en nature sont encore disponibles pour ce produit.Vous devez les utiliser avant d'acheter.";
         } else {
             $argentDisponible = DonModel::getTotalArgentDisponible();
     
             if ($argentDisponible < $montantTotal) {
                 $achatAutorise = false;
-                $messageErreur = "Fonds insuffisants pour effectuer l'achat.";
+                $messageErreur = "Fonds insuffisants";
             }
     
             $reste = $argentDisponible - $montantTotal;
