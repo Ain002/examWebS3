@@ -98,7 +98,6 @@ $router->group('', function(Router $router) use ($app) {
         if ($data['idProduit'] && $data['quantite'] && $data['dateDon']) {
             (new DonController($app))->create($data);
         }
-
         Flight::redirect('/don');
     });
 
@@ -134,37 +133,27 @@ $router->group('', function(Router $router) use ($app) {
         $app->json((new VilleController($app))->index());
     });
 
-    $router->get('/api/villes/@id', function($id) use ($app) {
-        $app->json((new VilleController($app))->get($id));
+        Flight::redirect('/don');
     });
 
-    $router->get('/api/dons', function() use ($app) {
-        $app->json((new DonController($app))->index());
+    // ================= PRODUIT =================
+    $router->get('/produit', function() use ($app) {
+        $ctrl = new ProduitController($app);
+        renderPage('insertDon', ['produits' => $ctrl->index()]);
     });
 
-    $router->get('/api/dons/@id', function($id) use ($app) {
-        $app->json((new DonController($app))->get($id));
+    // ================= RECAP =================
+    $router->get('/recapitulatif', function() use ($app) {
+        $ctrl = new RecapitulatifController($app);
+        renderPage('recapitulatif', $ctrl->getStats());
     });
 
-    $router->post('/api/dons/@id/distribuer', function($id) use ($app) {
-        $ctrl = new DonController($app);
-        $result = $ctrl->distribuerDon($id);
-        if ($result['success']) {
-            Flight::redirect('/don?success=' . urlencode($result['message']));
-        } else {
-            Flight::redirect('/don?error=' . urlencode($result['message']));
-        }
+    $router->get('/api/recapitulatif', function() use ($app) {
+        $app->json((new RecapitulatifController($app))->getStats());
     });
 
-    // ── Besoins (restant AVANT /@idVille) ──
-    $router->get('/besoin/restant', function() use ($app) {
-        $ctrl    = new BesoinSatisfaitController($app);
-        $besoins = $ctrl->getBesoinRestant();
-        $villes  = (new VilleController($app))->index();
-        renderPage('besoinRestant', ['besoins' => $besoins, 'villes' => $villes]);
-    });
-
-    $router->get('/besoin/acheter/@id', function($id) use ($app) {
+    // ================= BESOIN =================
+    $router->get('/besoin/@idVille', function($idVille) use ($app) {
         $ctrl = new BesoinController($app);
         renderPage('besoin', [
             'besoins'  => $ctrl->getByVille($idVille),
@@ -216,9 +205,11 @@ $router->group('', function(Router $router) use ($app) {
         }
     });
 
-    $router->get('/api/recapitulatif', function() use ($app) {
-        $ctrl = new RecapitulatifController($app);
-        $app->json($ctrl->getStats());
-    });
+	$router->get('/simulation/@id', function($id) use ($app) {
+		$ctrl = new SimulationAchatController($app);
+		$ctrl->index($id);
+	});
+}, [SecurityHeadersMiddleware::class, InjectCssMiddleware::class]);
+
 
 }, [SecurityHeadersMiddleware::class]);
