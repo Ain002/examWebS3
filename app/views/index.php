@@ -105,8 +105,8 @@
     <!-- ═══ SIDEBAR ═══ -->
     <aside class="sidebar">
       <div class="brand">
-        <div class="brand-icon">🎁</div>
-        <span>ExamWebS3</span>
+        <div class="brand-icon">📈</div>
+        <span>BNGRC</span>
       </div>
       <nav style="flex:1;">
         <div class="menu-section">Navigation</div>
