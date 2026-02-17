@@ -1,6 +1,5 @@
 <?php
 
-use app\controllers\ApiExampleController;
 use app\controllers\DashboardController;
 use app\controllers\RegionController;
 use app\controllers\VilleController;
@@ -10,6 +9,7 @@ use app\models\ProduitModel;
 use app\models\TypeBesoinModel;
 use app\controllers\ProduitController;
 use app\middlewares\SecurityHeadersMiddleware;
+use app\middlewares\InjectCssMiddleware;
 use flight\Engine;
 use flight\net\Router;
 
@@ -18,8 +18,25 @@ use flight\net\Router;
  * @var Engine $app
  */
 
+function isAjax(): bool {
+    return isset($_SERVER['HTTP_X_REQUESTED_WITH'])
+        && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+}
 
-// This wraps all routes in the group with the SecurityHeadersMiddleware
+function renderPage(string $view, array $data = []): void {
+    $viewsDir = __DIR__ . '/../views';
+
+    if (isAjax()) {
+        extract($data, EXTR_SKIP);
+        require $viewsDir . '/' . $view . '.php';
+    } else {
+        $data['currentView'] = $view;
+        extract($data, EXTR_SKIP);
+        require $viewsDir . '/index.php';
+    }
+}
+
+
 $router->group('', function(Router $router) use ($app) {
 
 	// Pages (render views) using controllers to fetch data
@@ -125,52 +142,49 @@ $router->group('', function(Router $router) use ($app) {
 ;
 	});
 
-	// Form ajout
-	$router->get('/besoin/form/@idVille', function($idVille){
-		$besoin = null;
-		$villeId = $idVille;
-		$types = TypeBesoinModel::getAll();
-		$produits = ProduitModel::getAll();
+    $router->get('/don', function() use ($app) {
+        $ctrl = new DonController($app);
+        $dons = $ctrl->index();
+        renderPage('don', ['dons' => $dons]);
+    });
 
 		require __DIR__ . '/../views/besoinForm.php';
 ;
 	});
 
-	// Form modification
-	$router->get('/besoin/form/@idVille/@id', function($idVille, $id){
-		$ctrl = new BesoinController(Flight::app());
-		$besoin = $ctrl->get($id);
-		$villeId = $idVille;
-		$types = TypeBesoinModel::getAll();
-		$produits = ProduitModel::getAll();
+    $router->post('/don', function() use ($app) {
+        $data = [
+            'idProduit' => $_POST['idProduit'] ?? null,
+            'quantite'  => $_POST['quantite']  ?? null,
+            'dateDon'   => $_POST['dateDon']   ?? null,
+        ];
+        if ($data['idProduit'] && $data['quantite'] && $data['dateDon']) {
+            $ctrl = new DonController($app);
+            $ctrl->create($data);
+        }
+        Flight::redirect('/don');
+    });
 
-		require 'app/views/besoinForm.php';
-	});
+    // ── API JSON ──
+    $router->get('/api/regions', function() use ($app) {
+        $app->json((new RegionController($app))->index());
+    });
 
-	// Save
-	$router->post('/besoin/save', function(){
-		$ctrl = new BesoinController(Flight::app());
-		$payload = $_POST;
+    $router->get('/api/regions/@id', function($id) use ($app) {
+        $app->json((new RegionController($app))->get($id));
+    });
 
-		if (!empty($payload['id'])) {
-			$ctrl->update((int)$payload['id'], $payload);
-		} else {
-			$ctrl->create($payload);
-		}
+    $router->get('/api/villes', function() use ($app) {
+        $app->json((new VilleController($app))->index());
+    });
 
-		Flight::redirect(BASE_URL . '/besoin/ville/' . $payload['idVille']);
-	});
+    $router->get('/api/villes/@id', function($id) use ($app) {
+        $app->json((new VilleController($app))->get($id));
+    });
 
-	// Delete
-	$router->post('/besoin/delete/@id', function($id){
-		$ctrl = new BesoinController(Flight::app());
-		$d = $ctrl->get($id);
-		if($d){
-			$idVille = $d->idVille;
-			$ctrl->delete($id);
-			Flight::redirect(BASE_URL . '/besoin/ville/' . $idVille);
-		}
-	});
+    $router->get('/api/dons', function() use ($app) {
+        $app->json((new DonController($app))->index());
+    });
 
 
-}, [ SecurityHeadersMiddleware::class ]);
+}, [SecurityHeadersMiddleware::class, InjectCssMiddleware::class]);

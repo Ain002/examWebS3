@@ -1,0 +1,85 @@
+/* ExamWebS3 — feuille de style globale (injection middleware)
+   Ne modifie pas les vues, applique un thème doux et lisible.
+*/
+:root{
+  --accent:#6366f1;
+  --muted:#6b7280;
+  --bg:#f8fafc;
+  --card:#ffffff;
+  --success:#10b981;
+  --danger:#ef4444;
+  --radius:8px;
+}
+html,body{height:100%;margin:0;font-family:Inter, 'DM Sans', system-ui, sans-serif;background:var(--bg);color:#0f172a}
+a{color:var(--accent)}
+.container{max-width:1100px;margin:0 auto;padding:18px}
+.card{background:var(--card);padding:16px;border-radius:var(--radius);box-shadow:0 4px 12px rgba(2,6,23,0.04);}
+.alert{padding:10px 12px;border-radius:6px;margin-bottom:12px;font-weight:500}
+.alert-success{background:#ecfdf5;color:#065f46;border:1px solid #bbf7d0}
+.alert-error{background:#fff1f2;color:#b91c1c;border:1px solid #fecaca}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{padding:10px;border:1px solid #eef2f7;text-align:left}
+thead th{background:#f8fafc;color:var(--muted)}
+.btn{display:inline-block;padding:8px 12px;border-radius:6px;text-decoration:none;color:#fff}
+.btn-primary{background:var(--accent)}
+.btn-success{background:var(--success)}
+.btn-danger{background:var(--danger)}
+.filter{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+.text-muted{color:var(--muted)}
+
+/* Responsive small tweaks */
+@media (max-width:760px){
+  .container{padding:12px}
+  th,td{padding:8px}
+}
+
+/* Styles spécifiques pour les pages 'region' et 'ville' (listes) */
+article, section, .card, div > ul {
+  margin-bottom:12px;
+}
+ul {
+  list-style: none; padding-left: 0; margin: 0;
+}
+ul li{
+  background: linear-gradient(180deg, #fff, #fbfdff);
+  border: 1px solid #eef2f7;
+  padding: 12px 14px; margin-bottom:8px; border-radius:6px; display:flex; justify-content:space-between; align-items:center;
+}
+ul li a{margin-left:10px;color:var(--accent);text-decoration:none}
+
+/* Besoins list styling - matching inline tables */
+table{border-radius:6px;overflow:hidden}
+table tr:nth-child(even){background:#fbfcfe}
+th{font-weight:600}
+
+/* Buttons and actions */
+.btn{box-shadow:0 2px 6px rgba(2,6,23,0.06)}
+form button, .btn, a[role="button"]{cursor:pointer}
+
+/* Specific helpers for retour link */
+a[ href*="/ville" ], a[ href*="/dashboard" ]{color:var(--accent);text-decoration:none;font-weight:600}
+
+/* Region & Ville - cartes modernes */
+.region-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin:12px 0}
+.region-item{background:linear-gradient(180deg,#ffffff,#fbfcff);border:1px solid #e6eef7;padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(10,20,40,0.04);display:flex;flex-direction:column;gap:8px}
+.region-item h3{margin:0;font-size:16px;color:#0f172a}
+.region-item .meta{font-size:13px;color:var(--muted)}
+.region-item .actions{margin-top:8px;display:flex;gap:8px}
+.region-item .btn-sm{padding:6px 10px;border-radius:8px;font-size:13px;text-decoration:none}
+.region-item .btn-edit{background:#f59e0b;color:#fff}
+.region-item .btn-view{background:var(--accent);color:#fff}
+
+.ville-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:12px 0}
+.ville-card{background:#fff;border:1px solid #eef2f7;padding:12px;border-radius:10px;display:flex;flex-direction:column;gap:8px}
+.ville-card .title{font-weight:700;color:#111827}
+.ville-card .sub{font-size:13px;color:var(--muted)}
+.ville-card .controls{margin-top:8px}
+.ville-badge{display:inline-block;padding:4px 8px;background:rgba(99,102,241,0.08);color:var(--accent);border-radius:999px;font-weight:600;font-size:12px}
+
+/* Make sure old UL list fallback still looks decent */
+ul.region-list-legacy li, ul.ville-list-legacy li{display:flex;justify-content:space-between;align-items:center}
+
+@media (max-width:760px){
+  .region-list, .ville-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+}
+

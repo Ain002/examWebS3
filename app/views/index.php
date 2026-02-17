@@ -1,148 +1,259 @@
-<?php
-// Page statique d'exemple pour afficher un menu vertical et le contenu central
-?>
 <!doctype html>
 <html lang="fr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>ExamWebS3 — Tableau de bord</title>
+  <title>ExamWebS3</title>
+  <link rel="stylesheet" href="/css/exam.css">
   <style>
-    :root{
-      --bg:#f6f8fb;
-      --sidebar:#1f2937;
-      --accent:#2563eb;
-      --muted:#6b7280;
-      --white:#ffffff;
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+    :root {
+      --sidebar-w: 230px;
+      --sidebar-bg: #0f172a;
+      --sidebar-border: rgba(255,255,255,0.06);
+      --accent: #6366f1;
+      --accent-soft: rgba(99,102,241,0.12);
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --bg: #f8fafc;
     }
-    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background:var(--bg); color:#111827}
-    .app{display:flex;height:100vh;}
-    .sidebar{width:220px;background:linear-gradient(180deg,var(--sidebar), #111827);color:var(--white);padding:18px 12px;box-shadow:2px 0 8px rgba(0,0,0,0.06);}
-    .brand{font-weight:700;letter-spacing:0.4px;margin-bottom:18px;font-size:18px}
-    .menu{list-style:none;padding:0;margin:0}
-    .menu li{margin:6px 0}
-  .menu a, .menu button{all:unset;display:flex;align-items:center;width:100%;padding:10px 12px;border-radius:8px;cursor:pointer;color:var(--white);transition:background 160ms}
-  .menu a:hover, .menu button:hover{background:rgba(255,255,255,0.04)}
-  .menu a.active, .menu button.active{background:var(--white);color:#0f172a}
-    .menu .icon{width:26px;text-align:center;margin-right:10px;opacity:0.95}
-    .content{flex:1;padding:28px;overflow:auto}
-    .card{background:var(--white);border-radius:10px;padding:20px;box-shadow:0 6px 18px rgba(15,23,42,0.06);max-width:1000px}
-    h1{margin:0 0 12px 0;font-size:20px}
-    p{margin:0;color:var(--muted)}
-    /* responsive */
-    @media (max-width:720px){
-      .app{flex-direction:column}
-      .sidebar{width:100%;display:flex;overflow:auto}
-      .menu{display:flex;gap:8px}
-  .menu a, .menu button{white-space:nowrap}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: 'DM Sans', system-ui, sans-serif; background: var(--bg); color: #1e293b; }
+    .app { display: flex; height: 100vh; overflow: hidden; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w); flex-shrink: 0;
+      background: var(--sidebar-bg);
+      display: flex; flex-direction: column;
+      overflow-y: auto;
+      border-right: 1px solid var(--sidebar-border);
+    }
+    .brand {
+      padding: 22px 20px 16px; font-size: 15px; font-weight: 700;
+      color: var(--text-main); border-bottom: 1px solid var(--sidebar-border);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .brand-icon {
+      width: 30px; height: 30px; background: var(--accent); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; font-size: 14px;
+    }
+    .menu-section { padding: 12px 12px 6px; font-size: 10px; font-weight: 600; letter-spacing: 1.2px; color: var(--text-muted); text-transform: uppercase; }
+    .menu { list-style: none; padding: 4px 10px; flex: 1; }
+    .menu li { margin: 2px 0; }
+    .menu a {
+      display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px;
+      color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 500;
+      transition: all 150ms ease; position: relative;
+    }
+    .menu a:hover { background: rgba(255,255,255,0.05); color: var(--text-main); }
+    .menu a.active { background: var(--accent-soft); color: #a5b4fc; }
+    .menu a.active::before {
+      content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 60%; background: var(--accent); border-radius: 0 3px 3px 0;
+    }
+    .menu .icon { width: 20px; text-align: center; font-size: 15px; flex-shrink: 0; }
+
+    /* ZONE CENTRALE */
+    .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .topbar {
+      height: 54px; flex-shrink: 0; background: white; border-bottom: 1px solid #e2e8f0;
+      display: flex; align-items: center; padding: 0 28px; gap: 12px;
+    }
+    #pageTitle { font-size: 15px; font-weight: 600; color: #1e293b; }
+    .topbar-path { font-size: 13px; color: #94a3b8; font-family: 'DM Mono', monospace; }
+
+    #loadingBar {
+      position: fixed; top: 0; left: 0; height: 2px; width: 0%;
+      background: var(--accent); transition: width 0.25s ease; z-index: 9999;
+    }
+    .content { flex: 1; overflow-y: auto; padding: 28px; }
+    #pageContent { max-width: 1080px; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .page-loaded { animation: fadeIn 0.2s ease; }
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%; animation: shimmer 1.2s infinite;
+      border-radius: 6px; height: 20px; margin-bottom: 10px;
+    }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+    /* FOOTER SIDEBAR */
+    .sidebar-footer {
+      padding: 12px 16px; background: rgba(0,0,0,0.2); border-top: 1px solid var(--sidebar-border);
+      font-size: 11px; color: var(--text-muted);
+    }
+    .sidebar-footer .members { display: flex; flex-direction: column; gap: 3px; }
+    .sidebar-footer .member span { color: var(--text-main); font-weight: 600; font-family: 'DM Mono', monospace; }
+    .sidebar-footer .copy { margin-top: 6px; color: #475569; font-size: 10px; }
+
+    @media (max-width: 700px) {
+      .app { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--sidebar-border); }
+      .menu { display: flex; flex-direction: row; padding: 6px; }
+      .menu li { margin: 0; }
+      .menu-section, .sidebar-footer { display: none; }
+      .brand { padding: 12px 16px; border-bottom: none; }
     }
   </style>
 </head>
 <body>
+  <div id="loadingBar"></div>
   <div class="app">
-    <aside class="sidebar" aria-label="Menu principal">
-      <div class="brand">ExamWebS3</div>
-      <nav>
-        <ul class="menu" role="menu">
-          <li role="none"><a role="menuitem" data-page="dashboard" class="active" href="/dashboard"><span class="icon">📊</span><span>Tableau de bord</span></a></li>
-          <li role="none"><a role="menuitem" data-page="region" href="/region"><span class="icon">🗺️</span><span>Région</span></a></li>
-          <li role="none"><a role="menuitem" data-page="ville" href="/ville"><span class="icon">🏙️</span><span>Ville</span></a></li>
-          <li role="none"><a role="menuitem" data-page="don" href="/don"><span class="icon">🎁</span><span>Don</span></a></li>
-          <li role="none"><a role="menuitem" data-page="recapitulatif" href="/recapitulatif"><span class="icon">📈</span><span>Récapitulatif</span></a></li>
-          <li role="none"><a role="menuitem" data-page="besoin_restants" href="/besoin/restant"><span class="icon"></span><span>Besoins restants</span></a></li>
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">🎁</div>
+        <span>ExamWebS3</span>
+      </div>
+      <nav style="flex:1;">
+        <div class="menu-section">Navigation</div>
+        <ul class="menu">
+          <?php
+          $nav = [
+            'dashboard'      => ['icon'=>'📊', 'label'=>'Tableau de bord', 'url'=>'/dashboard'],
+            'region'         => ['icon'=>'🗺️', 'label'=>'Région',          'url'=>'/region'],
+            'ville'          => ['icon'=>'🏙️', 'label'=>'Ville',           'url'=>'/ville'],
+            'don'            => ['icon'=>'🎁', 'label'=>'Don',              'url'=>'/don'],
+            'recapitulatif'  => ['icon'=>'📈', 'label'=>'Récapitulatif',   'url'=>'/recapitulatif'],
+            'besoinRestant'  => ['icon'=>'📋', 'label'=>'Besoins restants','url'=>'/besoin/restant'],
+          ];
+          // data-page utilisé par le JS pour le fetch
+          $dataPageMap = [
+            'dashboard'     => 'dashboard',
+            'region'        => 'region',
+            'ville'         => 'ville',
+            'don'           => 'don',
+            'recapitulatif' => 'recapitulatif',
+            'besoinRestant' => 'besoin/restant',
+          ];
+          foreach ($nav as $key => $item):
+            $active = (($currentView ?? 'dashboard') === $key) ? 'active' : '';
+          ?>
+          <li>
+            <a href="<?= $item['url'] ?>"
+               data-page="<?= $dataPageMap[$key] ?>"
+               class="<?= $active ?>">
+              <span class="icon"><?= $item['icon'] ?></span>
+              <span><?= $item['label'] ?></span>
+            </a>
+          </li>
+          <?php endforeach; ?>
         </ul>
       </nav>
+      <div class="sidebar-footer">
+        <div class="members">
+          <div class="member">Nia — <span>ETU003925</span></div>
+          <div class="member">Randianina — <span>ETU004060</span></div>
+          <div class="member">Sundy — <span>ETU003912</span></div>
+        </div>
+        <div class="copy">ExamWebS3 &copy; <?= date('Y') ?></div>
+      </div>
     </aside>
 
-    <main class="content" id="mainContent" tabindex="0">
-      <section class="card" id="pageContent">
-        <?php
+    <!-- ═══ ZONE CENTRALE ═══ -->
+    <div class="main-wrapper">
+      <div class="topbar">
+        <span id="pageTitle"><?= htmlspecialchars($nav[$currentView ?? 'dashboard']['label'] ?? 'Tableau de bord') ?></span>
+        <span class="topbar-path" id="topbarPath"><?= htmlspecialchars($nav[$currentView ?? 'dashboard']['url'] ?? '/dashboard') ?></span>
+      </div>
+      <main class="content" id="mainContent">
+        <div id="pageContent" class="page-loaded">
+<?php
+/*
+ * INCLUSION DU FRAGMENT
+ * Toutes les variables de $data ont été extraites par renderPage()
+ * via extract(), donc $regions, $villes, $dons, etc. sont disponibles ici.
+ * On inclut simplement le fichier de vue correspondant.
+ */
+$__viewFile = __DIR__ . '/' . ($currentView ?? 'dashboard') . '.php';
+if (file_exists($__viewFile)) {
+    include $__viewFile;
+} else {
+    echo '<p style="color:red;">Vue introuvable : ' . htmlspecialchars($__viewFile) . '</p>';
+}
+?>
+        </div>
+      </main>
+    </div>
 
-        $initial = __DIR__ . '/dashboard.php';
-        if(file_exists($initial)){
-            include $initial;
-        } else {
-            echo '<h1>Tableau de bord</h1><p>Bienvenue sur le tableau de bord.</p>';
-        }
-        ?>
-      </section>
-    </main>
-  </div>
+  </div><!-- .app -->
 
-  <?php include __DIR__ . '/footer.php'; ?>
   <script>
-    // base URL pour les fetch depuis le navigateur (vide -> racine)
-    window.BASE_URL = '';
-    (function(){
+    const bar = document.getElementById('loadingBar');
+    function startLoad() { bar.style.width = '60%'; }
+    function endLoad()   { bar.style.width = '100%'; setTimeout(() => bar.style.width = '0%', 250); }
 
-      function setActive(button){
-        document.querySelectorAll('.menu button')
-          .forEach(b => b.classList.remove('active'));
-        button.classList.add('active');
-      }
+    const pageTitles = {
+      'dashboard':      'Tableau de bord',
+      'region':         'Régions',
+      'ville':          'Villes',
+      'don':            'Dons',
+      'recapitulatif':  'Récapitulatif',
+      'besoin/restant': 'Besoins restants',
+    };
 
-      // Construit une URL absolue robuste même si BASE_URL contient ou non un slash
-      function buildUrl(pageKey){
-        const base = (window.BASE_URL || '').toString();
-        // normaliser les segments
-        const cleanBase = base.replace(/^\/?|\/?$/g, '');
-        const parts = [];
-        parts.push(location.origin.replace(/\/$/, ''));
-        if(cleanBase) parts.push(cleanBase);
-        parts.push(encodeURIComponent(pageKey));
-        // join avec slash unique
-        return parts.join('/').replace(/([^:]\/)\//g, '$1');
-      }
+    async function loadPage(pageKey, pushState = true) {
+      const container = document.getElementById('pageContent');
+      const titleEl   = document.getElementById('pageTitle');
+      const pathEl    = document.getElementById('topbarPath');
 
-      async function loadPage(pageKey){
-        const container = document.getElementById('pageContent');
-        const url = buildUrl(pageKey);
-        console.log('[app] loadPage ->', pageKey, url);
+      startLoad();
+      container.classList.remove('page-loaded');
+      container.innerHTML = `
+        <div class="skeleton" style="width:40%;height:28px;margin-bottom:20px;"></div>
+        <div class="skeleton" style="width:100%;"></div>
+        <div class="skeleton" style="width:85%;"></div>
+        <div class="skeleton" style="width:70%;"></div>`;
 
-        try{
-          const res = await fetch(url, { cache: 'no-store' });
-
-          if(!res.ok) throw new Error('Erreur '+res.status+' pour '+url);
-
-          const html = await res.text();
-          container.innerHTML = html;
-          console.log('[app] page chargée:', pageKey, 'taille', html.length);
-
-          // focus container and update hash
-          document.getElementById('mainContent').focus();
-          history.replaceState(null, '', '#'+pageKey);
-
-        }catch(err){
-          container.innerHTML = '<h1>Erreur</h1><p>Impossible de charger la vue.</p>';
-          console.error('[app] erreur loadPage', err);
-        }
-      }
-
-      // Support both buttons and links; prefer links (<a>) for progressive enhancement
-      document.querySelectorAll('.menu a, .menu button').forEach(el => {
-        el.addEventListener('click', function(e){
-          e.preventDefault();
-          setActive(this);
-          const page = this.dataset ? this.dataset.page : null;
-          if(page) loadPage(page);
+      try {
+        const res = await fetch('/' + pageKey, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' },
+          cache: 'no-store'
         });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+
+        const html = await res.text();
+        container.innerHTML = html;
+        container.classList.add('page-loaded');
+
+        const title = pageTitles[pageKey] || pageKey;
+        titleEl.textContent = title;
+        pathEl.textContent  = '/' + pageKey;
+        document.title      = title + ' — ExamWebS3';
+
+        if (pushState) history.pushState({ pageKey }, '', '/' + pageKey);
+
+      } catch (err) {
+        container.innerHTML = `
+          <div style="padding:40px;text-align:center;color:#ef4444;">
+            <div style="font-size:48px;margin-bottom:12px;">⚠️</div>
+            <h2>Impossible de charger la page</h2>
+            <p style="color:#94a3b8;margin-top:8px;">${err.message}</p>
+          </div>`;
+      } finally { endLoad(); }
+    }
+
+    // Clics dans la sidebar
+    document.querySelectorAll('.menu a').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.querySelectorAll('.menu a').forEach(a => a.classList.remove('active'));
+        this.classList.add('active');
+        loadPage(this.dataset.page);
       });
+    });
 
-      const initialHash = (location.hash && location.hash.slice(1)) || 'dashboard';
-      // chercher d'abord un lien <a>, puis un bouton
-      let initialEl = document.querySelector('.menu a[data-page="'+initialHash+'"]') || document.querySelector('.menu button[data-page="'+initialHash+'"]');
-
-      if(initialEl){
-        setActive(initialEl);
-        loadPage(initialHash);
-      } else {
-        // si aucun élément trouvé, charger le dashboard par défaut
-        const defaultEl = document.querySelector('.menu a[data-page="dashboard"], .menu button[data-page="dashboard"]');
-        if(defaultEl) setActive(defaultEl);
-        loadPage('dashboard');
+    // Bouton retour/avant navigateur
+    window.addEventListener('popstate', e => {
+      if (e.state?.pageKey) {
+        document.querySelectorAll('.menu a').forEach(a =>
+          a.classList.toggle('active', a.dataset.page === e.state.pageKey));
+        loadPage(e.state.pageKey, false);
       }
-
-    })();
+    });
   </script>
 </body>
 </html>

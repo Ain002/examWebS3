@@ -1,10 +1,4 @@
 <?php
-// Variables attendues :
-// $besoin (BesoinModel ou null)
-// $villeId
-// $types (liste TypeBesoinModel)
-// $produits (liste ProduitModel)
-
 $id = $besoin->id ?? '';
 $idType = $besoin->idType ?? '';
 $idProduit = $besoin->idProduit ?? '';
@@ -70,4 +64,3 @@ $quantite = $besoin->quantite ?? '';
 
     </form>
 </div>
-  <?php include __DIR__ . '/footer.php'; ?>
