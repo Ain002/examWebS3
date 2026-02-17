@@ -152,8 +152,9 @@ $router->group('', function(Router $router) use ($app) {
         }
     });
 
-	$router->get('/simulation/@id', function($id) use ($app) {
-		$ctrl = new SimulationAchatController($app);
-		$ctrl->index($id);
-	});
-}, [SecurityHeadersMiddleware::class, InjectCssMiddleware::class]);
+    $router->get('/api/recapitulatif', function() use ($app) {
+        $ctrl = new RecapitulatifController($app);
+        $app->json($ctrl->getStats());
+    });
+
+}, [SecurityHeadersMiddleware::class]);
