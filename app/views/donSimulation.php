@@ -15,6 +15,17 @@
     <h1 style="margin:0;">Simulation — Don #<?= (int)($don->id ?? '') ?></h1>
   </div>
 
+  <!-- Sélecteur de méthode (simple, sans JS) -->
+  <form method="get" action="/don/<?= (int)($don->id ?? '') ?>/simuler" style="margin-bottom:18px;display:flex;gap:10px;align-items:center;">
+    <label for="method" style="font-size:13px;color:#374151;">Méthode :</label>
+    <select id="method" name="method" style="padding:6px 10px;border-radius:6px;border:1px solid #e5e7eb;">
+      <option value="fifo" <?= (isset($method) && $method === 'fifo') ? 'selected' : (!isset($method) ? 'selected' : '') ?>>FIFO (par défaut)</option>
+      <option value="min" <?= (isset($method) && $method === 'min') ? 'selected' : '' ?>>Min (petits besoins d'abord)</option>
+      <option value="proportionnel" <?= (isset($method) && in_array($method, ['proportionnel','prorata','pro rata'])) ? 'selected' : '' ?>>Proportionnel</option>
+    </select>
+    <button type="submit" style="padding:7px 12px;background:#3b82f6;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Simuler</button>
+  </form>
+
   <!-- Résumé du don -->
   <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px;">
     <div style="background:white;border-radius:8px;padding:14px 20px;border-left:3px solid #6366f1;box-shadow:0 1px 4px rgba(0,0,0,0.07);">

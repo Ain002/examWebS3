@@ -13,6 +13,7 @@ use app\controllers\BesoinSatisfaitController;
 use app\middlewares\SecurityHeadersMiddleware;
 use flight\Engine;
 use flight\net\Router;
+use app\models\DonModel;
 
 /** 
  * @var Router $router 
@@ -106,13 +107,40 @@ $router->group('', function(Router $router) use ($app) {
 
     // ── Page de simulation don (HTML, sans toucher à la BDD) ──
     $router->get('/don/@id/simuler', function($id) use ($app) {
+        $method = isset($_GET['method']) ? trim($_GET['method']) : 'fifo';
         $ctrl   = new DonController($app);
-        $result = $ctrl->simulateDistribuerDon((int)$id);
+        $result = $ctrl->simuler((int)$id, $method);
+
+        // Normaliser le plan pour la vue :
+        // - les simulations FIFO/MIN retournent 'plan'
+        // - la simulation proportionnelle retourne 'par_ville' avec 'details'
+        $plan = $result['plan'] ?? [];
+        if (empty($plan) && !empty($result['par_ville'])) {
+            foreach ($result['par_ville'] as $pv) {
+                foreach ($pv['details'] as $d) {
+                    $deja = isset($d['deja_attribue']) ? (int)$d['deja_attribue'] : 0;
+                    $reste_avant = isset($d['reste_avant']) ? (int)$d['reste_avant'] : 0;
+                    $alloue = isset($d['alloue']) ? (int)$d['alloue'] : 0;
+                    $plan[] = [
+                        'idBesoin' => (int)$d['idBesoin'],
+                        'ville' => $pv['ville'] ?? '',
+                        'quantite_demande' => $deja + $reste_avant,
+                        'deja_attribue' => $deja,
+                        'attribuer' => $alloue,
+                        'restant_apres' => max(0, $reste_avant - $alloue),
+                    ];
+                }
+            }
+        }
+
+        // Always provide a DonModel instance to the view so templates using ->id work
+        $donForView = DonModel::getById((int)$id);
         renderPage('donSimulation', [
-            'don'                  => $result['don'],
-            'plan'                 => $result['plan'] ?? [],
+            'don'                  => $donForView,
+            'plan'                 => $plan,
             'quantite_distribuee'  => $result['quantite_distribuee'] ?? 0,
             'quantite_restante'    => $result['quantite_restante'] ?? 0,
+            'method'               => $method,
         ]);
     });
 
@@ -139,6 +167,14 @@ $router->group('', function(Router $router) use ($app) {
 
     $router->get('/api/dons/@id', function($id) use ($app) {
         $app->json((new DonController($app))->get($id));
+    });
+
+    // API: simulation de distribution d'un don (ne touche pas à la BDD)
+    $router->get('/api/dons/@id/simuler', function($id) use ($app) {
+        $method = isset($_GET['method']) ? trim($_GET['method']) : 'fifo';
+        $ctrl = new DonController($app);
+        $res = $ctrl->simuler((int)$id, $method);
+        $app->json($res);
     });
 
     $router->post('/api/dons/@id/distribuer', function($id) use ($app) {
