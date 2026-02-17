@@ -99,6 +99,7 @@ $router->group('', function(Router $router) use ($app) {
         $app->json((new VilleController($app))->index());
     });
 
+
     // ================= PRODUIT =================
     $router->get('/produit', function() use ($app) {
         renderPage('insertDon', [
@@ -151,9 +152,8 @@ $router->group('', function(Router $router) use ($app) {
         }
     });
 
-    // ================= SIMULATION =================
-    $router->get('/simulation/@id', function($id) use ($app) {
-        (new SimulationAchatController($app))->index($id);
-    });
-
+	$router->get('/simulation/@id', function($id) use ($app) {
+		$ctrl = new SimulationAchatController($app);
+		$ctrl->index($id);
+	});
 }, [SecurityHeadersMiddleware::class, InjectCssMiddleware::class]);
