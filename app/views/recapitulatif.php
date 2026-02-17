@@ -75,7 +75,7 @@
             </div>
         </div>
 
-        <div class="section-title">Top 5 villes par montant de besoins</div>
+        <div class="section-title">Les villes et les montants de leurs besoins</div>
         <div class="table-container">
             <table class="stats-table" id="topVillesTable">
                 <thead>

@@ -78,7 +78,7 @@ class RecapitulatifController {
         ");
         $achatStats = $stmt->fetch(\PDO::FETCH_ASSOC);
         
-        // 6. Top 5 des villes avec le plus de besoins
+        // les villes et leurs besoins
         $stmt = $db->query("
             SELECT 
                 v.nom as ville,
@@ -89,7 +89,6 @@ class RecapitulatifController {
             INNER JOIN produit p ON b.idProduit = p.id
             GROUP BY v.id, v.nom
             ORDER BY montant_besoins DESC
-            LIMIT 5
         ");
         $topVilles = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         
