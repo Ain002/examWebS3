@@ -2,7 +2,17 @@
     <div class="card shadow-sm p-4">
         <h2 class="mb-4">Formulaire d'insertion de dons</h2>
 
-    <form action="<?= BASE_URL ?>/don" method="post">
+    <form action="/don" method="post">
+        <label for="produit">Produit</label>
+        <select name="idProduit" id="produit" required>
+            <option value="">Produits</option>
+            <?php if (!empty($produits)) { ?>
+                <?php foreach ($produits as $pd) { ?>
+                    <option value="<?= htmlspecialchars($pd->id) ?>">
+                        <?= htmlspecialchars($pd->description) ?>
+                    </option>
+                <?php } ?>
+            <?php } ?>
 
             <div class="mb-3">
                 <label for="produit" class="form-label">Produit</label>
@@ -18,11 +28,8 @@
                 </select>
             </div>
 
-            <div class="mb-3">
-                <label for="quantite" class="form-label">Quantité</label>
-                <input type="number" name="quantite" id="quantite" 
-                       class="form-control" min="1" required>
-            </div>
+        <label for="quantite">Quantité</label>
+        <input type="number" name="quantite" id="quantite" min="1" required>
 
             <div class="mb-3">
                 <label for="dateDon" class="form-label">Date du don</label>
@@ -30,9 +37,7 @@
                        class="form-control" required>
             </div>
 
-            <button type="submit" class="btn btn-primary">
-                Enregistrer
-            </button>
-        </form>
-    </div>
+        <br><br>
+        <input type="submit" value="Enregistrer">
+    </form>
 </div>
