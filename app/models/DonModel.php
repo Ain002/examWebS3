@@ -137,4 +137,23 @@ class DonModel {
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $result['argent_disponible'] ?? 0;
     }
+
+    public static function donsDisponiblesPourProduit($idProduit): bool
+{
+    $db = flight::db();
+
+    $stmt = $db->prepare("
+        SELECT d.id, d.quantite, COALESCE(SUM(a.quantite), 0) as distribue
+        FROM don d
+        LEFT JOIN attribution a ON d.id = a.idDon
+        WHERE d.idProduit = ?
+        GROUP BY d.id, d.quantite
+        HAVING d.quantite - distribue > 0
+    ");
+
+    $stmt->execute([$idProduit]);
+
+    return $stmt->rowCount() > 0;
+}
+
 }

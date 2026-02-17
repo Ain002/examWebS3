@@ -20,7 +20,7 @@
         </strong>
     </p>
 
-    <?php if($reste >= 0): ?>
+    <?php if($achatAutorise): ?>
         <form method="post" action="/besoin/acheter/<?= $besoin->id ?>">
             <button style="padding:8px 15px;background:#10b981;color:white;border:none;border-radius:6px;">
                 Valider l'achat
@@ -29,6 +29,11 @@
     <?php else: ?>
         <p style="color:red;">Fonds insuffisants</p>
     <?php endif; ?>
+    <?php if(!$achatAutorise): ?>
+    <p style="color:red; font-weight:bold;">
+        <?= htmlspecialchars($messageErreur) ?>
+    </p>
+<?php endif; ?>
 
     <br>
     <a href="/besoin/restant">← Retour</a>
