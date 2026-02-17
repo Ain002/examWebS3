@@ -36,7 +36,7 @@
         </div>
 
         <?php if($achatAutorise): ?>
-            <form method="post" action="/besoin/acheter/<?= $besoin->id ?>">
+            <form method="post" action="<?= BASE_URL ?>/besoin/acheter/<?= $besoin->id ?>">
                 <button class="btn btn-success">
                     Valider l'achat
                 </button>
@@ -46,7 +46,7 @@
                 <?= htmlspecialchars($messageErreur) ?>
             </div>
         <?php endif; ?>
-        <a href="/besoin/restant" class="btn btn-primary mt-3">
+    <a href="<?= BASE_URL ?>/besoin/restant" class="btn btn-primary mt-3">
 
             ← Retour
         </a>
