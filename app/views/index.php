@@ -48,6 +48,8 @@
           <li role="none"><a role="menuitem" data-page="region" href="/region"><span class="icon">🗺️</span><span>Région</span></a></li>
           <li role="none"><a role="menuitem" data-page="ville" href="/ville"><span class="icon">🏙️</span><span>Ville</span></a></li>
           <li role="none"><a role="menuitem" data-page="don" href="/don"><span class="icon">🎁</span><span>Don</span></a></li>
+          <li role="none"><a role="menuitem" data-page="recapitulatif" href="/recapitulatif"><span class="icon">📈</span><span>Récapitulatif</span></a></li>
+          <li role="none"><a role="menuitem" data-page="besoin_restants" href="/besoin/restant"><span class="icon"></span><span>Besoins restants</span></a></li>
         </ul>
       </nav>
     </aside>

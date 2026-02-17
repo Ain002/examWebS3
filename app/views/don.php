@@ -46,8 +46,8 @@
                         <td><?php echo htmlspecialchars($d->dateSaisie ?? ''); ?></td>
                         <td>
                             <?php if (isset($d->quantiteRestante) && $d->quantiteRestante > 0): ?>
-                                <form method="POST" action="/api/dons/<?php echo $d->id; ?>/distribuer" style="display:inline;">
-                                    <button type="submit" class="btn-distribuer" onclick="return confirm('Voulez-vous vraiment distribuer ce don ?');">
+                                <form method="POST" action="/api/dons/<?php echo $d->id; ?>/distribuer" class="form-distribuer" style="display:inline;">
+                                    <button type="submit" class="btn-distribuer">
                                         Distribuer
                                     </button>
                                 </form>
@@ -66,7 +66,8 @@
     <a href="/produit">Insérer un don</a>
     
 </div>
-  <?php include __DIR__ . '/footer.php'; ?>
+    <script src="/js/don-confirm.js" nonce="<?php echo htmlspecialchars($_SERVER['CSP_NONCE'] ?? ''); ?>"></script>
+    <?php include __DIR__ . '/footer.php'; ?>
 
 <style>
 table {
