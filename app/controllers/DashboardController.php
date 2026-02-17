@@ -69,7 +69,7 @@ class DashboardController {
             'villes_count' => $villes_count,
             'dons_count' => $dons_count,
             'cities' => $cities,
-            // expose aussi les listes brutes si besoin
+            
             'regions' => $regions,
             'villes' => $villes,
             'dons' => $dons,
