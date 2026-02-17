@@ -189,12 +189,28 @@ $router->group('', function(Router $router) use ($app) {
     });
 
     // ── Besoins (restant AVANT /@idVille) ──
-    $router->get('/besoin/restant', function() use ($app) {
+    // Route with optional city path parameter for clearer navigation
+    $router->get('/besoin/restant/@idVille', function($idVille) use ($app) {
         $ctrl    = new BesoinSatisfaitController($app);
-        $besoins = $ctrl->getBesoinRestant();
+        $besoins = $ctrl->getBesoinRestant($idVille);
         $villes  = (new VilleController($app))->index();
         renderPage('besoinRestant', ['besoins' => $besoins, 'villes' => $villes]);
     });
+
+	$router->post('/besoin/acheter/@id', function($id) use ($app) {
+		$ctrl = new BesoinController($app);
+		$res  = $ctrl->achatBesoin($id);
+	
+		if (is_array($res) && !empty($res['success'])) {
+			$query = 'success=1';
+		} else {
+			$msg   = is_array($res) && isset($res['error']) ? $res['error'] : 'Erreur';
+			$query = 'error=' . rawurlencode($msg);
+		}
+	
+		$app->redirect(BASE_URL . '/besoin/restant?' . $query);
+	});
+	
 
 	$router->post('/besoin/acheter/@id', function($id) use ($app) {
 		$ctrl = new BesoinController($app);

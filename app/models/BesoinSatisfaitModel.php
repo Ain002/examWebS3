@@ -111,13 +111,25 @@ class BesoinSatisfaitModel {
     /**
      * Retourne les besoins restants (quantite_demande, quantite_attribue, quantite_restante)
      */
-    public static function getBesoinRestant() {
+    public static function getBesoinRestant($idVille = null) {
         $db = flight::db();
 
-        $sql = "SELECT b.id, b.idVille, v.nom AS ville, b.idProduit, p.description AS produit, p.pu AS pu, b.quantite AS quantite_demande, COALESCE(SUM(a.quantite),0) AS quantite_attribue, (b.quantite - COALESCE(SUM(a.quantite),0)) AS quantite_restante\n            FROM besoin b\n            LEFT JOIN attribution a ON a.idBesoin = b.id\n            JOIN produit p ON p.id = b.idProduit\n            JOIN ville v ON v.id = b.idVille\n            GROUP BY b.id\n            HAVING quantite_restante > 0";
+        $sql = "SELECT b.id, b.idVille, v.nom AS ville, b.idProduit, p.description AS produit, p.pu AS pu, b.quantite AS quantite_demande, COALESCE(SUM(a.quantite),0) AS quantite_attribue, (b.quantite - COALESCE(SUM(a.quantite),0)) AS quantite_restante
+            FROM besoin b
+            LEFT JOIN attribution a ON a.idBesoin = b.id
+            JOIN produit p ON p.id = b.idProduit
+            JOIN ville v ON v.id = b.idVille";
+
+        $params = [];
+        if (!empty($idVille)) {
+            $sql .= "\n WHERE b.idVille = ?";
+            $params[] = $idVille;
+        }
+
+        $sql .= "\n GROUP BY b.id\n HAVING quantite_restante > 0";
 
         $stmt = $db->prepare($sql);
-        $stmt->execute();
+        $stmt->execute($params);
         $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         return $rows;
     }

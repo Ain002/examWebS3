@@ -26,7 +26,7 @@ use app\models\BesoinModel;
                 <?php foreach ($besoins as $b): ?>
                     <tr>
                         <td style="padding:8px;border:1px solid #e5e7eb;">
-                            <?= htmlspecialchars($b->getType()?->libelle ?? '') ?>
+                            <?= htmlspecialchars($b->getType()?->description ?? '') ?>
                         </td>
 
                         <td style="padding:8px;border:1px solid #e5e7eb;">
