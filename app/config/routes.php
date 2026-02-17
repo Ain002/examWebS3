@@ -5,6 +5,7 @@ use app\controllers\RegionController;
 use app\controllers\VilleController;
 use app\controllers\DonController;
 use app\controllers\BesoinController;
+use app\controllers\SimulationAchatController;
 use app\models\ProduitModel;
 use app\models\TypeBesoinModel;
 use app\controllers\ProduitController;
@@ -37,7 +38,7 @@ function renderPage(string $view, array $data = []): void {
 }
 
 
-$$router->group('', function(Router $router) use ($app) {
+$router->group('', function(Router $router) use ($app) {
 
     // ================= DASHBOARD =================
     $router->get('/', function() use ($app) {
@@ -153,6 +154,10 @@ $$router->group('', function(Router $router) use ($app) {
         }
     });
 
+	$router->get('/simulation/@id', function($id) use ($app) {
+		$ctrl = new SimulationAchatController($app);
+		$ctrl->index($id);
+	});
 }, [SecurityHeadersMiddleware::class, InjectCssMiddleware::class]);
 
->>>>>>>>> Temporary merge branch 2
+
