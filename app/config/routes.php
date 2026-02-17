@@ -133,8 +133,6 @@ $router->group('', function(Router $router) use ($app) {
         $app->json((new VilleController($app))->index());
     });
 
-        Flight::redirect('/don');
-    });
 
     // ================= PRODUIT =================
     $router->get('/produit', function() use ($app) {
@@ -210,6 +208,3 @@ $router->group('', function(Router $router) use ($app) {
 		$ctrl->index($id);
 	});
 }, [SecurityHeadersMiddleware::class, InjectCssMiddleware::class]);
-
-
-}, [SecurityHeadersMiddleware::class]);
