@@ -9,7 +9,6 @@ use app\models\ConfigFraisAchatModel;
 use app\models\DonModel;
 
 class SimulationAchatController {
-
     protected Engine $app;
 
     public function __construct($app) {
@@ -17,8 +16,7 @@ class SimulationAchatController {
     }
 
     // Page simulation
-    public function index($idBesoin) {
-
+    public function index($idBesoin): array { // <- retourne array maintenant
         $besoin = BesoinModel::getById($idBesoin);
         if (!$besoin) die("Besoin introuvable");
 
@@ -30,7 +28,7 @@ class SimulationAchatController {
 
         $argentDisponible = DonModel::getTotalArgentDisponible();
 
-        $data = [
+        return [
             'besoin' => $besoin,
             'produit' => $produit,
             'montantBase' => $montantBase,
@@ -39,7 +37,8 @@ class SimulationAchatController {
             'argentDisponible' => $argentDisponible,
             'reste' => $argentDisponible - $montantTotal
         ];
-
-        $this->app->render('simulation', $data);
     }
 }
+
+
+

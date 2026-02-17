@@ -9,6 +9,7 @@ use app\controllers\RecapitulatifController;
 use app\models\ProduitModel;
 use app\models\TypeBesoinModel;
 use app\controllers\ProduitController;
+use app\controllers\SimulationAchatController;
 use app\controllers\BesoinSatisfaitController;
 use app\middlewares\SecurityHeadersMiddleware;
 use flight\Engine;
@@ -159,17 +160,20 @@ $router->group('', function(Router $router) use ($app) {
         renderPage('besoinRestant', ['besoins' => $besoins, 'villes' => $villes]);
     });
 
-    $router->get('/besoin/acheter/@id', function($id) use ($app) {
-        $ctrl = new BesoinController($app);
-        $res  = $ctrl->achatBesoin($id);
-        if (is_array($res) && !empty($res['success'])) {
-            $query = 'success=1';
-        } else {
-            $msg   = is_array($res) && isset($res['error']) ? $res['error'] : 'Erreur';
-            $query = 'error=' . rawurlencode($msg);
-        }
-        $app->redirect(BASE_URL . '/besoin/restant?' . $query);
-    });
+	$router->post('/besoin/acheter/@id', function($id) use ($app) {
+		$ctrl = new BesoinController($app);
+		$res  = $ctrl->achatBesoin($id);
+	
+		if (is_array($res) && !empty($res['success'])) {
+			$query = 'success=1';
+		} else {
+			$msg   = is_array($res) && isset($res['error']) ? $res['error'] : 'Erreur';
+			$query = 'error=' . rawurlencode($msg);
+		}
+	
+		$app->redirect(BASE_URL . '/besoin/restant?' . $query);
+	});
+	
 
     $router->get('/besoin/form/@idVille', function($idVille) use ($app) {
         renderPage('besoinForm', [
@@ -224,5 +228,12 @@ $router->group('', function(Router $router) use ($app) {
         $ctrl = new RecapitulatifController($app);
         $app->json($ctrl->getStats());
     });
+
+	$router->get('/simulation/achat/@idBesoin', function($idBesoin) use ($app) {
+		$ctrl = new SimulationAchatController($app);
+		$data = $ctrl->index($idBesoin); // récupérer les données
+		renderPage('simulationAchat', $data); // inclure la vue simulationAchat.php
+	});
+
 
 }, [SecurityHeadersMiddleware::class]);
