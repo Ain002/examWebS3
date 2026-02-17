@@ -37,154 +37,122 @@ function renderPage(string $view, array $data = []): void {
 }
 
 
-$router->group('', function(Router $router) use ($app) {
+$$router->group('', function(Router $router) use ($app) {
 
-	// Pages (render views) using controllers to fetch data
-	$router->get('/', function() use ($app) {
-		$dashboard = new DashboardController($app);
-		$data = $dashboard->index();
-		$app->render('index', $data);
-	});
-
-	// route dédiée pour retourner uniquement le fragment du dashboard (utilisée par le menu JS)
-	$router->get('/dashboard', function() use ($app) {
-		$dashboard = new DashboardController($app);
-		$data = $dashboard->index();
-		// rend uniquement le fragment 'dashboard'
-		$app->render('dashboard', $data);
-	});
-
-	$router->get('/region', function() use ($app) {
-		$ctrl = new RegionController($app);
-		$regions = $ctrl->index();
-		$app->render('region', [ 'regions' => $regions ]);
-	});
-
-	$router->get('/ville', function() use ($app) {
-		$ctrl = new VilleController($app);
-		$villes = $ctrl->index();
-		$app->render('ville', [ 'villes' => $villes ]);
-	});
-
-	$router->get('/don', function() use ($app) {
-		$ctrl = new DonController($app);
-		$dons = $ctrl->index();
-		$app->render('don', [ 'dons' => $dons ]);
-	});
-
-	$router->get('/produit', function() use ($app) {
-		$ctrl = new ProduitController($app);
-		$produits = $ctrl->index();
-		$app->render('insertDon', ['produits' => $produits]);
-	});
-	
-	$router->post('/don', function() use ($app) {
-
-		$data = [
-			'idProduit' => $_POST['idProduit'] ?? null,
-			'quantite'  => $_POST['quantite'] ?? null,
-			'dateDon'   => $_POST['dateDon'] ?? null
-		];
-	
-		if ($data['idProduit'] && $data['quantite'] && $data['dateDon']) {
-			$ctrl = new DonController($app);
-			$ctrl->create($data);
-		}
-	
-		flight::redirect('/don');
-	});
-	
-	// Simple API endpoints (JSON)
-	$router->get('/api/regions', function() use ($app) {
-		$ctrl = new RegionController($app);
-		$app->json($ctrl->index());
-	});
-
-	$router->get('/api/regions/@id', function($id) use ($app) {
-		$ctrl = new RegionController($app);
-		$app->json($ctrl->get($id));
-	});
-
-	$router->get('/api/villes', function() use ($app) {
-		$ctrl = new VilleController($app);
-		$app->json($ctrl->index());
-	});
-
-	$router->get('/api/villes/@id', function($id) use ($app) {
-		$ctrl = new VilleController($app);
-		$app->json($ctrl->get($id));
-	});
-
-	$router->get('/api/dons', function() use ($app) {
-		$ctrl = new DonController($app);
-		$app->json($ctrl->index());
-	});
-
-	$router->get('/api/dons/@id', function($id) use ($app) {
-		$ctrl = new DonController($app);
-		$app->json($ctrl->get($id));
-	});
-
-	$router->get('/api/dons/@id', function($id) use ($app) {
-		$ctrl = new DonController($app);
-		$app->json($ctrl->get($id));
-	});
-
-	// Liste par ville
-	$router->get('/besoin/@idVille', function($idVille){
-		$ctrl = new BesoinController(Flight::app());
-		$besoins = $ctrl->getByVille($idVille);
-		$villeId = $idVille;
-		$produits = ProduitModel::getAll();
-		$types = TypeBesoinModel::getAll();
-
-		require __DIR__ . '/../views/besoin.php';
-;
-	});
-
-    $router->get('/don', function() use ($app) {
-        $ctrl = new DonController($app);
-        $dons = $ctrl->index();
-        renderPage('don', ['dons' => $dons]);
+    // ================= DASHBOARD =================
+    $router->get('/', function() use ($app) {
+        $dashboard = new DashboardController($app);
+        $data = $dashboard->index();
+        renderPage('dashboard', $data);
     });
 
-		require __DIR__ . '/../views/besoinForm.php';
-;
-	});
+    $router->get('/dashboard', function() use ($app) {
+        $dashboard = new DashboardController($app);
+        $data = $dashboard->index();
+        renderPage('dashboard', $data);
+    });
+
+    // ================= REGION =================
+    $router->get('/region', function() use ($app) {
+        $ctrl = new RegionController($app);
+        renderPage('region', ['regions' => $ctrl->index()]);
+    });
+
+    // ================= VILLE =================
+    $router->get('/ville', function() use ($app) {
+        $ctrl = new VilleController($app);
+        renderPage('ville', ['villes' => $ctrl->index()]);
+    });
+
+    // ================= DON =================
+    $router->get('/don', function() use ($app) {
+        $ctrl = new DonController($app);
+        renderPage('don', ['dons' => $ctrl->index()]);
+    });
 
     $router->post('/don', function() use ($app) {
         $data = [
             'idProduit' => $_POST['idProduit'] ?? null,
-            'quantite'  => $_POST['quantite']  ?? null,
-            'dateDon'   => $_POST['dateDon']   ?? null,
+            'quantite'  => $_POST['quantite'] ?? null,
+            'dateDon'   => $_POST['dateDon'] ?? null,
         ];
+
         if ($data['idProduit'] && $data['quantite'] && $data['dateDon']) {
-            $ctrl = new DonController($app);
-            $ctrl->create($data);
+            (new DonController($app))->create($data);
         }
+
         Flight::redirect('/don');
     });
 
-    // ── API JSON ──
-    $router->get('/api/regions', function() use ($app) {
-        $app->json((new RegionController($app))->index());
+    // ================= PRODUIT =================
+    $router->get('/produit', function() use ($app) {
+        $ctrl = new ProduitController($app);
+        renderPage('insertDon', ['produits' => $ctrl->index()]);
     });
 
-    $router->get('/api/regions/@id', function($id) use ($app) {
-        $app->json((new RegionController($app))->get($id));
+    // ================= RECAP =================
+    $router->get('/recapitulatif', function() use ($app) {
+        $ctrl = new RecapitulatifController($app);
+        renderPage('recapitulatif', $ctrl->getStats());
     });
 
-    $router->get('/api/villes', function() use ($app) {
-        $app->json((new VilleController($app))->index());
+    $router->get('/api/recapitulatif', function() use ($app) {
+        $app->json((new RecapitulatifController($app))->getStats());
     });
 
-    $router->get('/api/villes/@id', function($id) use ($app) {
-        $app->json((new VilleController($app))->get($id));
+    // ================= BESOIN =================
+    $router->get('/besoin/@idVille', function($idVille) use ($app) {
+        $ctrl = new BesoinController($app);
+        renderPage('besoin', [
+            'besoins'  => $ctrl->getByVille($idVille),
+            'villeId'  => $idVille,
+            'produits' => ProduitModel::getAll(),
+            'types'    => TypeBesoinModel::getAll(),
+        ]);
     });
 
-    $router->get('/api/dons', function() use ($app) {
-        $app->json((new DonController($app))->index());
+    $router->get('/besoin/form/@idVille', function($idVille) use ($app) {
+        renderPage('besoinForm', [
+            'besoin'   => null,
+            'villeId'  => $idVille,
+            'types'    => TypeBesoinModel::getAll(),
+            'produits' => ProduitModel::getAll(),
+        ]);
     });
 
+    $router->get('/besoin/form/@idVille/@id', function($idVille, $id) use ($app) {
+        $ctrl = new BesoinController($app);
+        renderPage('besoinForm', [
+            'besoin'   => $ctrl->get($id),
+            'villeId'  => $idVille,
+            'types'    => TypeBesoinModel::getAll(),
+            'produits' => ProduitModel::getAll(),
+        ]);
+    });
+
+    $router->post('/besoin/save', function() use ($app) {
+        $ctrl = new BesoinController($app);
+        $payload = $_POST;
+
+        if (!empty($payload['id'])) {
+            $ctrl->update((int)$payload['id'], $payload);
+        } else {
+            $ctrl->create($payload);
+        }
+
+        Flight::redirect(BASE_URL . '/besoin/' . $payload['idVille']);
+    });
+
+    $router->post('/besoin/delete/@id', function($id) use ($app) {
+        $ctrl = new BesoinController($app);
+        $besoin = $ctrl->get($id);
+
+        if ($besoin) {
+            $ctrl->delete($id);
+            Flight::redirect(BASE_URL . '/besoin/' . $besoin->idVille);
+        }
+    });
 
 }, [SecurityHeadersMiddleware::class, InjectCssMiddleware::class]);
+
+>>>>>>>>> Temporary merge branch 2
