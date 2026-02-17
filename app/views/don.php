@@ -67,7 +67,7 @@
     
 </div>
     <script src="/js/don-confirm.js" nonce="<?php echo htmlspecialchars($_SERVER['CSP_NONCE'] ?? ''); ?>"></script>
-    <?php include __DIR__ . '/footer.php'; ?>
+
 
 <style>
 table {
