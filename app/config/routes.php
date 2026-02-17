@@ -6,10 +6,12 @@ use app\controllers\VilleController;
 use app\controllers\DonController;
 use app\controllers\BesoinController;
 use app\controllers\SimulationAchatController;
+use app\controllers\ProduitController;
+use app\controllers\RecapitulatifController;
 use app\models\ProduitModel;
 use app\models\TypeBesoinModel;
-use app\controllers\ProduitController;
 use app\middlewares\SecurityHeadersMiddleware;
+use app\middlewares\InjectCssMiddleware;
 use flight\Engine;
 use flight\net\Router;
 
@@ -18,74 +20,56 @@ use flight\net\Router;
  * @var Engine $app
  */
 
-/**
- * Détecte si la requête vient du fetch() JS de la sidebar.
- */
 function isAjax(): bool {
     return isset($_SERVER['HTTP_X_REQUESTED_WITH'])
         && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 }
 
-/**
- * Rend une vue.
- *
- * - AJAX  → inclut uniquement le fragment (variables extraites dans le scope)
- * - Direct → inclut index.php qui lui-même inclut le fragment
- *
- * On utilise require + extract() plutôt que $app->render() pour que
- * les variables métier ($regions, $villes…) soient bien accessibles
- * dans le fragment inclus par index.php.
- */
 function renderPage(string $view, array $data = []): void {
-    // Chemin de base des vues (adapter si nécessaire)
     $viewsDir = __DIR__ . '/../views';
 
     if (isAjax()) {
-        // Retourne uniquement le fragment HTML
         extract($data, EXTR_SKIP);
         require $viewsDir . '/' . $view . '.php';
     } else {
-        // Accès direct : on charge le shell (index.php)
-        // index.php aura accès à TOUTES les variables de $data
-        // + $currentView pour savoir quel fragment inclure
         $data['currentView'] = $view;
         extract($data, EXTR_SKIP);
         require $viewsDir . '/index.php';
     }
 }
 
-
 $router->group('', function(Router $router) use ($app) {
 
     // ================= DASHBOARD =================
     $router->get('/', function() use ($app) {
-        $dashboard = new DashboardController($app);
-        $data = $dashboard->index();
+        $data = (new DashboardController($app))->index();
         renderPage('dashboard', $data);
     });
 
     $router->get('/dashboard', function() use ($app) {
-        $dashboard = new DashboardController($app);
-        $data = $dashboard->index();
+        $data = (new DashboardController($app))->index();
         renderPage('dashboard', $data);
     });
 
     // ================= REGION =================
     $router->get('/region', function() use ($app) {
-        $ctrl = new RegionController($app);
-        renderPage('region', ['regions' => $ctrl->index()]);
+        renderPage('region', [
+            'regions' => (new RegionController($app))->index()
+        ]);
     });
 
     // ================= VILLE =================
     $router->get('/ville', function() use ($app) {
-        $ctrl = new VilleController($app);
-        renderPage('ville', ['villes' => $ctrl->index()]);
+        renderPage('ville', [
+            'villes' => (new VilleController($app))->index()
+        ]);
     });
 
     // ================= DON =================
     $router->get('/don', function() use ($app) {
-        $ctrl = new DonController($app);
-        renderPage('don', ['dons' => $ctrl->index()]);
+        renderPage('don', [
+            'dons' => (new DonController($app))->index()
+        ]);
     });
 
     $router->post('/don', function() use ($app) {
@@ -98,29 +82,11 @@ $router->group('', function(Router $router) use ($app) {
         if ($data['idProduit'] && $data['quantite'] && $data['dateDon']) {
             (new DonController($app))->create($data);
         }
+
         Flight::redirect('/don');
     });
 
-    // ── API simulation besoin (GET, sans toucher à la BDD) ──
-    $router->get('/api/besoins/@id/simuler', function($id) use ($app) {
-        $ctrl   = new BesoinController($app);
-        $result = $ctrl->simulerAchatBesoin((int)$id);
-        $app->json($result);
-    });
-
-    // ── Page de simulation don (HTML, sans toucher à la BDD) ──
-    $router->get('/don/@id/simuler', function($id) use ($app) {
-        $ctrl   = new DonController($app);
-        $result = $ctrl->simulateDistribuerDon((int)$id);
-        renderPage('donSimulation', [
-            'don'                  => $result['don'],
-            'plan'                 => $result['plan'] ?? [],
-            'quantite_distribuee'  => $result['quantite_distribuee'] ?? 0,
-            'quantite_restante'    => $result['quantite_restante'] ?? 0,
-        ]);
-    });
-
-    // ── API JSON ──
+    // ================= API =================
     $router->get('/api/regions', function() use ($app) {
         $app->json((new RegionController($app))->index());
     });
@@ -136,14 +102,16 @@ $router->group('', function(Router $router) use ($app) {
 
     // ================= PRODUIT =================
     $router->get('/produit', function() use ($app) {
-        $ctrl = new ProduitController($app);
-        renderPage('insertDon', ['produits' => $ctrl->index()]);
+        renderPage('insertDon', [
+            'produits' => (new ProduitController($app))->index()
+        ]);
     });
 
     // ================= RECAP =================
     $router->get('/recapitulatif', function() use ($app) {
-        $ctrl = new RecapitulatifController($app);
-        renderPage('recapitulatif', $ctrl->getStats());
+        renderPage('recapitulatif',
+            (new RecapitulatifController($app))->getStats()
+        );
     });
 
     $router->get('/api/recapitulatif', function() use ($app) {
@@ -158,25 +126,6 @@ $router->group('', function(Router $router) use ($app) {
             'villeId'  => $idVille,
             'produits' => ProduitModel::getAll(),
             'types'    => TypeBesoinModel::getAll(),
-        ]);
-    });
-
-    $router->get('/besoin/form/@idVille', function($idVille) use ($app) {
-        renderPage('besoinForm', [
-            'besoin'   => null,
-            'villeId'  => $idVille,
-            'types'    => TypeBesoinModel::getAll(),
-            'produits' => ProduitModel::getAll(),
-        ]);
-    });
-
-    $router->get('/besoin/form/@idVille/@id', function($idVille, $id) use ($app) {
-        $ctrl = new BesoinController($app);
-        renderPage('besoinForm', [
-            'besoin'   => $ctrl->get($id),
-            'villeId'  => $idVille,
-            'types'    => TypeBesoinModel::getAll(),
-            'produits' => ProduitModel::getAll(),
         ]);
     });
 
