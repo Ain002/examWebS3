@@ -21,11 +21,17 @@ INSERT INTO typeBesoin (description) VALUES
 ('materiaux'),
 ('argent');
 
--- Insertion des produits (avec unite)
+--Insertion des produits (avec unite)
 INSERT INTO produit (description, pu, unite) VALUES
 ('Riz', 3500.00, 'kg'),
 ('Eau', 1200.00, 'litre'),
 ('Medicaments', 25000.00, 'boite');
+
+-- INSERT INTO produit (description, pu, unite, idType) VALUES
+-- ('Riz', 3500.00, 'kg', 1),        
+-- ('Eau', 1200.00, 'litre', 1),     
+-- ('Medicaments', 25000.00, 'boite', 1); 
+
 
 -- Insertion des besoins
 INSERT INTO besoin (idType, idVille, idProduit, quantite) VALUES
@@ -56,11 +62,21 @@ INSERT INTO donDistribue (idDon, dateDistribution) VALUES
 (1, '2026-02-11'),
 (2, '2026-02-13');
 
-
 INSERT INTO produit (description, pu, unite) VALUES
-('Argent', 1, 'Ar');
+('Argent', 1, 'Ar'); 
+
+-- INSERT INTO produit (description, pu, unite, idType) VALUES
+-- ('Argent', 1, 'Ar', 3); 
+
+
 INSERT INTO besoin (idType, idVille, idProduit, quantite) VALUES
 (1, 1, 1, 75);
 
 INSERT INTO besoin (idType, idVille, idProduit, quantite) VALUES
 (1, 1, 1, 25);
+
+  SELECT b.* 
+                FROM besoin b
+                LEFT JOIN besoinSatisfait bs ON b.id = bs.idBesoin
+                WHERE b.idProduit = 1 AND bs.id IS NULL
+                ORDER BY b.quantite ASC

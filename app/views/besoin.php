@@ -1,8 +1,4 @@
 <?php
-// Variables attendues :
-// $besoins (array de BesoinModel)
-// $villeId
-
 use app\models\BesoinModel;
 ?>
 
@@ -76,5 +72,4 @@ use app\models\BesoinModel;
         </a>
     </div>
 </div>
-<?php include __DIR__ . '/footer.php'; ?>
 

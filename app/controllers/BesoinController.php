@@ -166,8 +166,21 @@ class BesoinController {
                 'taxe_pourcent' => $config->pourcentage
             ];
             
-        } catch (\Exception $e) {
-            $db->rollBack();
+        } catch (\Throwable $e) {
+            // rollback only if a transaction is active to avoid "There is no active transaction"
+            try {
+                if (isset($db) && $db instanceof \PDO && $db->inTransaction()) {
+                    $db->rollBack();
+                }
+            } catch (\Throwable $rollbackEx) {
+                // Ne pas masquer l'erreur initiale ; inclure info de rollback si utile
+                return [
+                    'success' => false,
+                    'error' => $e->getMessage(),
+                    'rollback_error' => $rollbackEx->getMessage()
+                ];
+            }
+
             return [
                 'success' => false,
                 'error' => $e->getMessage()
