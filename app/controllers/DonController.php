@@ -306,6 +306,10 @@ class DonController {
                     'idVille' => $a['idVille'],
                     'ville' => $a['ville'],
                     'alloue_initial' => $a['alloc'],
+                    // part_proportionnelle: (besoin restant de la ville / total besoin restant) * quantite don (float)
+                    'part_proportionnelle' => round($a['floatAlloc'], 4),
+                    // part_pct: percent share of the city's remaining need over total remaining need
+                    'part_pct' => ($totalRestant > 0 ? round(($a['restant'] / $totalRestant) * 100, 2) : 0),
                     'distribue' => $distributedInVille,
                     'details' => $details
                 ];
