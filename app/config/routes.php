@@ -10,7 +10,6 @@ use app\models\ProduitModel;
 use app\models\TypeBesoinModel;
 use app\controllers\ProduitController;
 use app\middlewares\SecurityHeadersMiddleware;
-use app\middlewares\InjectCssMiddleware;
 use flight\Engine;
 use flight\net\Router;
 
@@ -19,18 +18,36 @@ use flight\net\Router;
  * @var Engine $app
  */
 
+/**
+ * Détecte si la requête vient du fetch() JS de la sidebar.
+ */
 function isAjax(): bool {
     return isset($_SERVER['HTTP_X_REQUESTED_WITH'])
         && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 }
 
+/**
+ * Rend une vue.
+ *
+ * - AJAX  → inclut uniquement le fragment (variables extraites dans le scope)
+ * - Direct → inclut index.php qui lui-même inclut le fragment
+ *
+ * On utilise require + extract() plutôt que $app->render() pour que
+ * les variables métier ($regions, $villes…) soient bien accessibles
+ * dans le fragment inclus par index.php.
+ */
 function renderPage(string $view, array $data = []): void {
+    // Chemin de base des vues (adapter si nécessaire)
     $viewsDir = __DIR__ . '/../views';
 
     if (isAjax()) {
+        // Retourne uniquement le fragment HTML
         extract($data, EXTR_SKIP);
         require $viewsDir . '/' . $view . '.php';
     } else {
+        // Accès direct : on charge le shell (index.php)
+        // index.php aura accès à TOUTES les variables de $data
+        // + $currentView pour savoir quel fragment inclure
         $data['currentView'] = $view;
         extract($data, EXTR_SKIP);
         require $viewsDir . '/index.php';
@@ -81,6 +98,40 @@ $router->group('', function(Router $router) use ($app) {
         if ($data['idProduit'] && $data['quantite'] && $data['dateDon']) {
             (new DonController($app))->create($data);
         }
+        Flight::redirect('/don');
+    });
+
+    // ── API simulation besoin (GET, sans toucher à la BDD) ──
+    $router->get('/api/besoins/@id/simuler', function($id) use ($app) {
+        $ctrl   = new BesoinController($app);
+        $result = $ctrl->simulerAchatBesoin((int)$id);
+        $app->json($result);
+    });
+
+    // ── Page de simulation don (HTML, sans toucher à la BDD) ──
+    $router->get('/don/@id/simuler', function($id) use ($app) {
+        $ctrl   = new DonController($app);
+        $result = $ctrl->simulateDistribuerDon((int)$id);
+        renderPage('donSimulation', [
+            'don'                  => $result['don'],
+            'plan'                 => $result['plan'] ?? [],
+            'quantite_distribuee'  => $result['quantite_distribuee'] ?? 0,
+            'quantite_restante'    => $result['quantite_restante'] ?? 0,
+        ]);
+    });
+
+    // ── API JSON ──
+    $router->get('/api/regions', function() use ($app) {
+        $app->json((new RegionController($app))->index());
+    });
+
+    $router->get('/api/regions/@id', function($id) use ($app) {
+        $app->json((new RegionController($app))->get($id));
+    });
+
+    $router->get('/api/villes', function() use ($app) {
+        $app->json((new VilleController($app))->index());
+    });
 
         Flight::redirect('/don');
     });
@@ -161,3 +212,4 @@ $router->group('', function(Router $router) use ($app) {
 }, [SecurityHeadersMiddleware::class, InjectCssMiddleware::class]);
 
 
+}, [SecurityHeadersMiddleware::class]);
