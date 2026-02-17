@@ -39,38 +39,39 @@ function renderPage(string $view, array $data = []): void {
 
 $router->group('', function(Router $router) use ($app) {
 
-    // ── Accueil → dashboard ──
-    $router->get('/', function() use ($app) {
-        $ctrl = new DashboardController($app);
-        $data = $ctrl->index();
-        renderPage('dashboard', $data);
-    });
+	// Pages (render views) using controllers to fetch data
+	$router->get('/', function() use ($app) {
+		$dashboard = new DashboardController($app);
+		$data = $dashboard->index();
+		$app->render('index', $data);
+	});
 
-    $router->get('/dashboard', function() use ($app) {
-        $ctrl = new DashboardController($app);
-        $data = $ctrl->index();
-        renderPage('dashboard', $data);
-    });
+	// route dédiée pour retourner uniquement le fragment du dashboard (utilisée par le menu JS)
+	$router->get('/dashboard', function() use ($app) {
+		$dashboard = new DashboardController($app);
+		$data = $dashboard->index();
+		// rend uniquement le fragment 'dashboard'
+		$app->render('dashboard', $data);
+	});
 
-    $router->get('/region', function() use ($app) {
-        $ctrl = new RegionController($app);
-        $regions = $ctrl->index();
-        renderPage('region', ['regions' => $regions]);
-    });
+	$router->get('/region', function() use ($app) {
+		$ctrl = new RegionController($app);
+		$regions = $ctrl->index();
+		$app->render('region', [ 'regions' => $regions ]);
+	});
 
-    $router->get('/ville', function() use ($app) {
-        $ctrl = new VilleController($app);
-        $villes = $ctrl->index();
-        renderPage('ville', ['villes' => $villes]);
-    });
+	$router->get('/ville', function() use ($app) {
+		$ctrl = new VilleController($app);
+		$villes = $ctrl->index();
+		$app->render('ville', [ 'villes' => $villes ]);
+	});
 
-    $router->get('/don', function() use ($app) {
-        $ctrl = new DonController($app);
-        $dons = $ctrl->index();
-        renderPage('don', ['dons' => $dons]);
-    });
+	$router->get('/don', function() use ($app) {
+		$ctrl = new DonController($app);
+		$dons = $ctrl->index();
+		$app->render('don', [ 'dons' => $dons ]);
+	});
 
-<<<<<<< HEAD
 	$router->get('/produit', function() use ($app) {
 		$ctrl = new ProduitController($app);
 		$produits = $ctrl->index();
@@ -78,19 +79,78 @@ $router->group('', function(Router $router) use ($app) {
 	});
 	
 	$router->post('/don', function() use ($app) {
-=======
-    $router->get('/recapitulatif', function() use ($app) {
-        $ctrl = new RecapitulatifController($app);
-        $stats = $ctrl->getStats();
-        renderPage('recapitulatif', $stats);
+
+		$data = [
+			'idProduit' => $_POST['idProduit'] ?? null,
+			'quantite'  => $_POST['quantite'] ?? null,
+			'dateDon'   => $_POST['dateDon'] ?? null
+		];
+	
+		if ($data['idProduit'] && $data['quantite'] && $data['dateDon']) {
+			$ctrl = new DonController($app);
+			$ctrl->create($data);
+		}
+	
+		flight::redirect('/don');
+	});
+	
+	// Simple API endpoints (JSON)
+	$router->get('/api/regions', function() use ($app) {
+		$ctrl = new RegionController($app);
+		$app->json($ctrl->index());
+	});
+
+	$router->get('/api/regions/@id', function($id) use ($app) {
+		$ctrl = new RegionController($app);
+		$app->json($ctrl->get($id));
+	});
+
+	$router->get('/api/villes', function() use ($app) {
+		$ctrl = new VilleController($app);
+		$app->json($ctrl->index());
+	});
+
+	$router->get('/api/villes/@id', function($id) use ($app) {
+		$ctrl = new VilleController($app);
+		$app->json($ctrl->get($id));
+	});
+
+	$router->get('/api/dons', function() use ($app) {
+		$ctrl = new DonController($app);
+		$app->json($ctrl->index());
+	});
+
+	$router->get('/api/dons/@id', function($id) use ($app) {
+		$ctrl = new DonController($app);
+		$app->json($ctrl->get($id));
+	});
+
+	$router->get('/api/dons/@id', function($id) use ($app) {
+		$ctrl = new DonController($app);
+		$app->json($ctrl->get($id));
+	});
+
+	// Liste par ville
+	$router->get('/besoin/@idVille', function($idVille){
+		$ctrl = new BesoinController(Flight::app());
+		$besoins = $ctrl->getByVille($idVille);
+		$villeId = $idVille;
+		$produits = ProduitModel::getAll();
+		$types = TypeBesoinModel::getAll();
+
+		require __DIR__ . '/../views/besoin.php';
+;
+	});
+
+    $router->get('/don', function() use ($app) {
+        $ctrl = new DonController($app);
+        $dons = $ctrl->index();
+        renderPage('don', ['dons' => $dons]);
     });
 
-    $router->get('/produit', function() use ($app) {
-        $ctrl = new ProduitController($app);
-        $produits = $ctrl->index();
-        renderPage('insertDon', ['produits' => $produits]);
-    });
->>>>>>> aea262ad3a03ed6fa1b784270ba5aa342ed50100
+		require __DIR__ . '/../views/besoinForm.php';
+;
+	});
 
     $router->post('/don', function() use ($app) {
         $data = [
@@ -126,151 +186,5 @@ $router->group('', function(Router $router) use ($app) {
         $app->json((new DonController($app))->index());
     });
 
-    $router->get('/api/dons/@id', function($id) use ($app) {
-        $app->json((new DonController($app))->get($id));
-    });
-
-<<<<<<< HEAD
-	// Liste par ville
-	$router->get('/besoin/@idVille', function($idVille){
-		$ctrl = new BesoinController(Flight::app());
-		$besoins = $ctrl->getByVille($idVille);
-		$villeId = $idVille;
-		$produits = ProduitModel::getAll();
-		$types = TypeBesoinModel::getAll();
-
-		require __DIR__ . '/../views/besoin.php';
-;
-	});
-=======
-    $router->post('/api/dons/@id/distribuer', function($id) use ($app) {
-        $ctrl = new DonController($app);
-        $result = $ctrl->distribuerDon($id);
-        if ($result['success']) {
-            Flight::redirect('/don?success=' . urlencode($result['message']));
-        } else {
-            Flight::redirect('/don?error=' . urlencode($result['message']));
-        }
-    });
-
-    // ── Besoins (restant AVANT /@idVille) ──
-    $router->get('/besoin/restant', function() use ($app) {
-        $ctrl    = new BesoinSatisfaitController($app);
-        $besoins = $ctrl->getBesoinRestant();
-        $villes  = (new VilleController($app))->index();
-        renderPage('besoinRestant', ['besoins' => $besoins, 'villes' => $villes]);
-    });
-
-    $router->get('/besoin/acheter/@id', function($id) use ($app) {
-        $ctrl = new BesoinController($app);
-        $res  = $ctrl->achatBesoin($id);
-        if (is_array($res) && !empty($res['success'])) {
-            $query = 'success=1';
-        } else {
-            $msg   = is_array($res) && isset($res['error']) ? $res['error'] : 'Erreur';
-            $query = 'error=' . rawurlencode($msg);
-        }
-        $app->redirect(BASE_URL . '/besoin/restant?' . $query);
-    });
-
-    $router->get('/besoin/form/@idVille', function($idVille) use ($app) {
-        renderPage('besoinForm', [
-            'besoin'   => null,
-            'villeId'  => $idVille,
-            'types'    => TypeBesoinModel::getAll(),
-            'produits' => ProduitModel::getAll(),
-        ]);
-    });
-
-    $router->get('/besoin/form/@idVille/@id', function($idVille, $id) use ($app) {
-        $ctrl = new BesoinController($app);
-        renderPage('besoinForm', [
-            'besoin'   => $ctrl->get($id),
-            'villeId'  => $idVille,
-            'types'    => TypeBesoinModel::getAll(),
-            'produits' => ProduitModel::getAll(),
-        ]);
-    });
-
-    $router->get('/besoin/@idVille', function($idVille) use ($app) {
-        $ctrl = new BesoinController($app);
-        renderPage('besoin', [
-            'besoins'  => $ctrl->getByVille($idVille),
-            'villeId'  => $idVille,
-            'produits' => ProduitModel::getAll(),
-            'types'    => TypeBesoinModel::getAll(),
-        ]);
-    });
->>>>>>> aea262ad3a03ed6fa1b784270ba5aa342ed50100
-
-    $router->post('/besoin/save', function() use ($app) {
-        $ctrl    = new BesoinController($app);
-        $payload = $_POST;
-        if (!empty($payload['id'])) {
-            $ctrl->update((int)$payload['id'], $payload);
-        } else {
-            $ctrl->create($payload);
-        }
-        Flight::redirect(BASE_URL . '/besoin/' . $payload['idVille']);
-    });
-
-<<<<<<< HEAD
-		require __DIR__ . '/../views/besoinForm.php';
-;
-	});
-
-	// Form modification
-	$router->get('/besoin/form/@idVille/@id', function($idVille, $id){
-		$ctrl = new BesoinController(Flight::app());
-		$besoin = $ctrl->get($id);
-		$villeId = $idVille;
-		$types = TypeBesoinModel::getAll();
-		$produits = ProduitModel::getAll();
-
-		require 'app/views/besoinForm.php';
-	});
-
-	// Save
-	$router->post('/besoin/save', function(){
-		$ctrl = new BesoinController(Flight::app());
-		$payload = $_POST;
-
-		if (!empty($payload['id'])) {
-			$ctrl->update((int)$payload['id'], $payload);
-		} else {
-			$ctrl->create($payload);
-		}
-
-		Flight::redirect(BASE_URL . '/besoin/ville/' . $payload['idVille']);
-	});
-
-	// Delete
-	$router->post('/besoin/delete/@id', function($id){
-		$ctrl = new BesoinController(Flight::app());
-		$d = $ctrl->get($id);
-		if($d){
-			$idVille = $d->idVille;
-			$ctrl->delete($id);
-			Flight::redirect(BASE_URL . '/besoin/ville/' . $idVille);
-		}
-	});
-
-
-}, [ SecurityHeadersMiddleware::class ]);
-=======
-    $router->post('/besoin/delete/@id', function($id) use ($app) {
-        $ctrl = new BesoinController($app);
-        $d    = $ctrl->get($id);
-        if ($d) {
-            $ctrl->delete($id);
-            Flight::redirect(BASE_URL . '/besoin/' . $d->idVille);
-        }
-    });
-
-    $router->get('/api/recapitulatif', function() use ($app) {
-        $ctrl = new RecapitulatifController($app);
-        $app->json($ctrl->getStats());
-    });
 
 }, [SecurityHeadersMiddleware::class, InjectCssMiddleware::class]);
->>>>>>> aea262ad3a03ed6fa1b784270ba5aa342ed50100
