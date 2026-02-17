@@ -1,19 +1,22 @@
 <?php
 ?>
-<div>
-    <h1>Ville</h1>
-    <p>Gérez les villes associées aux régions. Recherche et filtres disponibles.</p>
+<div class="container">
+    <h1>Villes</h1>
+    <p class="text-muted">Gérez les villes associées aux régions.</p>
+
     <?php if (!empty($villes) && is_array($villes)): ?>
-        <ul>
+        <div class="ville-grid">
             <?php foreach ($villes as $v): ?>
-                <li>
-                    <?= htmlspecialchars($v->nom ?? ''); ?> (id: <?= (int)($v->id ?? 0); ?>, région: <?= (int)($v->idRegion ?? 0); ?>)
-                    <a href="<?= BASE_URL ?>/besoin/<?= (int)($v->id ?? 0); ?>">Voir les besoins</a>
-                </li>
+                <div class="ville-card">
+                    <div class="title"><?= htmlspecialchars($v->nom ?? ''); ?></div>
+                    <div class="sub">— Région: <?= (int)($v->idRegion ?? 0); ?></div>
+                    <div class="controls">
+                        <a class="btn-sm btn-view" href="<?= BASE_URL ?>/besoin/<?= (int)($v->id ?? 0); ?>">Voir les besoins</a>
+                    </div>
+                </div>
             <?php endforeach; ?>
-        </ul>
+        </div>
     <?php else: ?>
         <p>Aucune ville trouvée.</p>
     <?php endif; ?>
 </div>
-  <?php include __DIR__ . '/footer.php'; ?>
