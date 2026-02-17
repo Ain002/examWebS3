@@ -100,18 +100,20 @@
     </div>
 </div>
 
-<script src="/js/recap-refresh.js" nonce="<?php echo htmlspecialchars($_SERVER['CSP_NONCE'] ?? ''); ?>"></script>
-    return new Intl.NumberFormat('fr-MG', { 
-        minimumFractionDigits: 0
-    }).format(montant) + ' Ar';
-}
+<script nonce="<?php echo htmlspecialchars($_SERVER['CSP_NONCE'] ?? ''); ?>">
+    function formatMontant(montant) {
+        return new Intl.NumberFormat('fr-MG', { 
+            minimumFractionDigits: 0
+        }).format(montant) + ' Ar';
+    }
 
-function formatNumber(number) {
-    return new Intl.NumberFormat('fr-MG', { 
-        minimumFractionDigits: 0
-    }).format(number);
-}
+    function formatNumber(number) {
+        return new Intl.NumberFormat('fr-MG', { 
+            minimumFractionDigits: 0
+        }).format(number);
+    }
 </script>
+
 
 <style>
 #statsContainer {

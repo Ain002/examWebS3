@@ -1,5 +1,4 @@
 <?php
-// Footer partagé — liste des membres et numéros
 ?>
 <footer style="margin-top:24px;padding:20px 18px;background:#111827;color:#fff;font-size:15px;box-shadow:0 -2px 8px rgba(0,0,0,0.15);">
     <div style="max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
