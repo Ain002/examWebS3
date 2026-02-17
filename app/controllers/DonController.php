@@ -143,5 +143,77 @@ class DonController {
         }
     }
 
-    
+
+    public function simulateDistribuerDon($id)
+    {
+        try {
+            $don = DonModel::getById($id);
+            if (!$don) {
+                return ['success' => false, 'message' => 'Don non trouvé'];
+            }
+
+            $db = $this->app->db();
+
+            $stmt = $db->prepare("
+                SELECT b.*
+                FROM besoin b
+                LEFT JOIN besoinSatisfait bs ON b.id = bs.idBesoin
+                WHERE b.idProduit = ? AND bs.id IS NULL
+                ORDER BY b.id ASC
+            ");
+            $stmt->execute([$don->idProduit]);
+            $besoins = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            $quantiteRestante = (int)$don->quantite;
+            $plan = [];
+
+            foreach ($besoins as $besoin) {
+
+                if ($quantiteRestante <= 0) break;
+
+                $stmtAttr = $db->prepare("
+                    SELECT COALESCE(SUM(quantite),0) as total
+                    FROM attribution
+                    WHERE idBesoin = ?
+                ");
+                $stmtAttr->execute([$besoin['id']]);
+                $dejaAttribue = (int)$stmtAttr->fetch(\PDO::FETCH_ASSOC)['total'];
+
+                $reste = (int)$besoin['quantite'] - $dejaAttribue;
+
+                if ($reste <= 0) continue;
+
+                $attribuer = min($quantiteRestante, $reste);
+
+                $plan[] = [
+                    'idBesoin' => $besoin['id'],
+                    'ville' => $besoin['idVille'],
+                    'quantite_demande' => (int)$besoin['quantite'],
+                    'deja_attribue' => $dejaAttribue,
+                    'attribuer' => $attribuer,
+                    'restant_apres' => $reste - $attribuer
+                ];
+
+                $quantiteRestante -= $attribuer;
+            }
+
+            return [
+                'success' => true,
+                'don' => [
+                    'id' => $don->id,
+                    'idProduit' => $don->idProduit,
+                    'quantite' => $don->quantite
+                ],
+                'plan' => $plan,
+                'quantite_distribuee' => $don->quantite - $quantiteRestante,
+                'quantite_restante' => $quantiteRestante
+            ];
+
+        } catch (\Throwable $e) {
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
+        }
+    }
 }
