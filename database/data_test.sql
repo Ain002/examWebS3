@@ -75,3 +75,8 @@ INSERT INTO besoin (idType, idVille, idProduit, quantite) VALUES
 INSERT INTO besoin (idType, idVille, idProduit, quantite) VALUES
 (1, 1, 1, 25);
 
+  SELECT b.* 
+                FROM besoin b
+                LEFT JOIN besoinSatisfait bs ON b.id = bs.idBesoin
+                WHERE b.idProduit = 1 AND bs.id IS NULL
+                ORDER BY b.quantite ASC

@@ -143,5 +143,97 @@ class DonController {
         }
     }
 
-    
+    public function distribuerDonMin($id){
+        $don = DonModel::getById($id);
+        if (!$don) return ['success' => false, 'message' => 'Don non trouvé'];
+        
+        $db = $this->app->db();
+        
+        try {
+            // Commencer une transaction
+            $db->beginTransaction();
+            
+            // 1. Récupérer tous les besoins non satisfaits pour ce produit, triés par ordre de création
+            $stmt = $db->prepare("
+                SELECT b.* 
+                FROM besoin b
+                LEFT JOIN besoinSatisfait bs ON b.id = bs.idBesoin
+                WHERE b.idProduit = ? AND bs.id IS NULL
+                ORDER BY b.quantite ASC
+            ");
+            $stmt->execute([$don->idProduit]);
+            $besoins = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            
+            $quantiteRestante = $don->quantite;
+            
+            // 2. Distribuer le don progressivement
+            foreach ($besoins as $besoinData) {
+                if ($quantiteRestante <= 0) break;
+                
+                $besoin = new BesoinModel($besoinData);
+                
+                // Calculer la quantité déjà attribuée à ce besoin
+                $stmtAttr = $db->prepare("
+                    SELECT COALESCE(SUM(quantite), 0) as total 
+                    FROM attribution 
+                    WHERE idBesoin = ?
+                ");
+                $stmtAttr->execute([$besoin->id]);
+                $dejaAttribue = $stmtAttr->fetch(\PDO::FETCH_ASSOC)['total'];
+                
+                // Calculer le reste à satisfaire pour ce besoin
+                $resteASatisfaire = $besoin->quantite - $dejaAttribue;
+                
+                if ($resteASatisfaire > 0) {
+                    // Quantité à attribuer = minimum entre ce qui reste du don et ce qui reste à satisfaire
+                    $quantiteAAttribuer = min($quantiteRestante, $resteASatisfaire);
+                    
+                    // Créer l'attribution
+                    $attribution = new AttributionModel();
+                    $attribution->idBesoin = $besoin->id;
+                    $attribution->idDon = $don->id;
+                    $attribution->quantite = $quantiteAAttribuer;
+                    $attribution->save();
+                    
+                    // Déduire la quantité attribuée
+                    $quantiteRestante -= $quantiteAAttribuer;
+                    
+                    // Vérifier si le besoin est maintenant complètement satisfait
+                    if ($dejaAttribue + $quantiteAAttribuer >= $besoin->quantite) {
+                        $besoinSatisfait = new BesoinSatisfaitModel();
+                        $besoinSatisfait->idBesoin = $besoin->id;
+                        $besoinSatisfait->dateSatisfaction = date('Y-m-d');
+                        $besoinSatisfait->save();
+                    }
+                }
+            }
+            
+            // 3. Enregistrer le don comme distribué
+            $donDistribue = new DonDistribueModel();
+            $donDistribue->idDon = $don->id;
+            $donDistribue->dateDistribution = date('Y-m-d');
+            $donDistribue->save();
+            
+            // Valider la transaction
+            $db->commit();
+            
+            $qDistrib = $don->quantite - $quantiteRestante;
+            $msg = "Distribution effectuée. Quantité distribuée : $qDistrib. Quantité restante : $quantiteRestante.";
+            return [
+                'success' => true,
+                'quantite_distribuee' => $qDistrib,
+                'quantite_restante' => $quantiteRestante,
+                'message' => $msg
+            ];
+            
+        } catch (\Exception $e) {
+            // Annuler la transaction en cas d'erreur
+            $db->rollBack();
+            return [
+                'success' => false,
+                'message' => 'Erreur lors de la distribution : ' . $e->getMessage()
+            ];
+        }
+
+    }
 }
