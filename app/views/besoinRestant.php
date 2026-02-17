@@ -49,10 +49,13 @@
                         <td style="padding:8px;border:1px solid #e5e7eb; text-align:center;"><?= htmlspecialchars($b['quantite_demande']) ?></td>
                         <td style="padding:8px;border:1px solid #e5e7eb; text-align:center;"><?= htmlspecialchars($b['quantite_attribue']) ?></td>
                         <td style="padding:8px;border:1px solid #e5e7eb; text-align:center;"><?= htmlspecialchars($b['quantite_restante']) ?></td>
-                        <a href="/simulation/<?= $b['id'] ?>" 
+                        <td>
+                        <a href="/simulation/achat/<?= $b['id'] ?>" 
    style="margin-left:8px;padding:6px 10px;background:#3b82f6;color:#fff;border-radius:6px;text-decoration:none;">
    Simuler
 </a>
+                        </td>
+ 
 
                     </tr>
                 <?php endforeach; ?>

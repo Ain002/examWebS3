@@ -80,3 +80,5 @@ INSERT INTO besoin (idType, idVille, idProduit, quantite) VALUES
                 LEFT JOIN besoinSatisfait bs ON b.id = bs.idBesoin
                 WHERE b.idProduit = 1 AND bs.id IS NULL
                 ORDER BY b.quantite ASC
+
+insert into configFraisAchat (pourcentage,dateCreation) VALUES (10,now());
